@@ -38,4 +38,10 @@ public class PersonsService : IPersonsService
         
         
     }
+
+    public List<PersonResponse>? GetAllPersons()
+    {
+        return _persons.Select(person => person.ConvertToPersonResponse()).ToList();
+        
+    }
 }

@@ -10,5 +10,11 @@ namespace ContactsManager.ServiceContracts.ServiceContracts
         /// <param name="perosnAddRequest"> input to the person</param>
         /// <returns> return person response object</returns>
         PersonResponse? AddPerson(PersonAddRequest? perosnAddRequest);
+
+        /// <summary>
+        /// Method to retrieve all persons
+        /// </summary>
+        /// <returns> returns the list of person response object</returns>
+        List<PersonResponse>? GetAllPersons();
     }
 }
