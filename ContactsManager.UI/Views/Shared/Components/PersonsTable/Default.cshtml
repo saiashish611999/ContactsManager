@@ -1,0 +1,15 @@
+﻿@model IEnumerable<PersonResponse>
+@foreach (var person in Model)
+{
+    <tr>
+        <td>@person.PersonName</td>
+        <td>@person.Email</td>
+        <td>@person.DateOfBirth</td>
+        <td>@person.Age</td>
+        <td>@person.Gender</td>
+        <td>@person.Address</td>
+        <td>@person.CountryName</td>
+        <td>@person.ReceiveNewsLetters</td>
+        <td><a asp-controller="Persons" asp-action="Edit" asp-route-personid="@person.PersonId">Edit</a></td>
+    </tr>
+}

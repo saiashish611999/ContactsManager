@@ -1,0 +1,136 @@
+﻿@model PersonAddRequest
+@{
+    ViewBag.Title = "Create Person";
+}
+<a asp-controller="Persons" asp-action="Index" class="link-hover">Back to Persons List</a>
+
+<h2>Create Person</h2>
+
+<div class="w-50">
+    <form asp-controller="Persons" asp-action="Create" method="post">
+
+        @*Person Name*@
+        <div class="form-field flex">
+            <div class="w-25">
+                <label class="form-label pt" asp-for="PersonName">Person Name</label>
+            </div>
+            <div class="flex-1">
+                <input asp-for="PersonName" class="form-input" />
+                <span asp-validation-for="PersonName"></span>
+            </div>
+        </div>
+
+        @*Email*@
+        <div class="form-field flex">
+            <div class="w-25">
+                <label class="form-label pt" asp-for="Email">Email</label>
+            </div>
+            <div class="flex-1">
+                <input asp-for="Email" type="email" class="form-input" />
+                <span asp-validation-for="Email"></span>
+            </div>
+        </div>
+
+        @*Date of Birth*@
+        <div class="form-field flex">
+            <div class="w-25">
+                <label class="form-label pt" asp-for="DateOfBirth">Date Of Birth</label>
+            </div>
+            <div class="flex-1">
+                <input asp-for="DateOfBirth" type="date" id="DateOfBirth" name="DateOfBirth" class="form-input" />
+                <span asp-validation-for="DateOfBirth"></span>
+            </div>
+        </div>
+
+        @*Gender*@
+        <div class="form-field flex">
+            <div class="w-25">
+                <label class="form-label pt">Gender</label>
+            </div>
+            <div class="flex-1">
+                @{
+                    string[] genders = (string[])Enum.GetNames(typeof(GenderOptions));
+                }
+                @foreach (string gender in genders)
+                {
+                    <input asp-for="Gender" type="radio" value="@gender" />
+                    <label for="@gender">@gender</label>
+
+                }
+                <span asp-validation-for="Gender"></span>
+            </div>
+        </div>
+
+        @*Country*@
+        <div class="form-field flex">
+            <div class="w-25">
+                <label class="form-label pt" asp-for="CountryId">Country</label>
+            </div>
+            <div class="flex-1">
+                <select asp-for="CountryId" asp-items="ViewBag.Countries" class="form-input">
+                    <option selected>Please Select</option>
+                </select>
+                <span asp-validation-for="CountryId"></span>
+            </div>
+        </div>
+
+        @*Address*@
+        <div class="form-field flex">
+            <div class="w-25">
+                <label class="form-label pt" asp-for="Address">Address</label>
+            </div>
+            <div class="flex-1">
+                <textarea asp-for="Address" class="form-input"></textarea>
+            </div>
+            <span asp-validation-for="Address"></span>
+        </div>
+
+        @*Receive News Letters*@
+        <div class="form-field flex">
+            <div class="w-25">
+            </div>
+            <div class="flex-1">
+                <input asp-for="ReceiveNewsLetters" value="true" class="form-input" />
+                <label asp-for="ReceiveNewsLetters" class="form-label">Receive News Letters</label>
+            </div>
+            <span asp-validation-for="ReceiveNewsLetters"></span>
+        </div>
+
+        <button  class="button button-green-back">Submit</button>
+        <div asp-validation-summary="All"></div>
+
+        @if (ViewBag.Errors != null)
+        {
+            <ul class="text-red">
+                @foreach (var error in ViewBag.Errors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+
+        }
+    </form>
+</div>
+
+@section scripts
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+            integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+            asp-fallback-test="window.jQuery"
+            asp-fallback-src="~/js/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js"
+            integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+            asp-fallback-test="window.jQuery.validator"
+            asp-fallback-src="~/js/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js"
+            integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+            asp-fallback-test="window.jQuery.validator.unobtrusive"
+            asp-fallback-src=""></script>
+
+}

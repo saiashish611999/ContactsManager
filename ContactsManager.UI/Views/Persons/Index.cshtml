@@ -1,0 +1,100 @@
+﻿@model IEnumerable<PersonResponse>
+@{
+    ViewBag.Title = "Persons";
+}
+
+<form id="searchForm">
+    <h2>Persons</h2>
+
+    <a asp-controller="Persons" asp-action="Create">Create Person</a>
+    <div class="box flex">
+        <div class="flex-1">
+            <select class="form-input" name="searchBy">
+                @foreach (var field in ViewBag.SearchFields)
+                {
+                    if (field.Key == ViewBag.CurrentSearchBy)
+                    {
+                        <option selected="selected" value="@field.Key">@field.Value</option>
+                    }
+                    else
+                    {
+                        <option value="@field.Key">@field.Value</option>
+                    }
+
+                }
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <input value="@ViewBag.CurrentSearchString" type="search" id="Search" class="form-input" placeholder="Search" name="searchString" />
+        </div>
+
+        <div class="flex-1">
+            <button id="button-search" class="button button-blue-back">Search</button>
+            <a asp-controller="Persons" asp-action="Index" class="link-hover">Clear All</a>
+        </div>
+    </div>
+
+    <table class="table w-100 mt">
+        <thead>
+            <tr>
+
+                @await Html.PartialAsync("_ColumnHeader", new ViewDataDictionary(ViewData)
+                {
+                    { "ColumnName", nameof(PersonResponse.PersonName)},
+                                { "DisplayName", "Person Name"}
+                })
+                @await Html.PartialAsync("_ColumnHeader", new ViewDataDictionary(ViewData)
+                                {
+                    { "ColumnName", nameof(PersonResponse.Email)},
+                                { "DisplayName", "Email"}
+                })
+                @await Html.PartialAsync("_ColumnHeader", new ViewDataDictionary(ViewData)
+                                {
+                    { "ColumnName", nameof(PersonResponse.DateOfBirth)},
+                                { "DisplayName", "Date of Birth"}
+                })
+                @await Html.PartialAsync("_ColumnHeader", new ViewDataDictionary(ViewData)
+                                {
+                    { "ColumnName", nameof(PersonResponse.Age)},
+                                { "DisplayName", "Age"}
+                })
+                @await Html.PartialAsync("_ColumnHeader", new ViewDataDictionary(ViewData)
+                                {
+                    { "ColumnName", nameof(PersonResponse.Gender)},
+                                { "DisplayName", "Gender"}
+                })
+                @await Html.PartialAsync("_ColumnHeader", new ViewDataDictionary(ViewData)
+                                {
+                    { "ColumnName", nameof(PersonResponse.Address)},
+                                { "DisplayName", "Address"}
+                })
+                @await Html.PartialAsync("_ColumnHeader", new ViewDataDictionary(ViewData)
+                                {
+                    { "ColumnName", nameof(PersonResponse.CountryName)},
+                                { "DisplayName", "Country"}
+                })
+                @await Html.PartialAsync("_ColumnHeader", new ViewDataDictionary(ViewData)
+                                {
+                    { "ColumnName", nameof(PersonResponse.ReceiveNewsLetters)},
+                                { "DisplayName", "Receive News Letters"}
+                })
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody id="persons-table-body" class="table-body">
+            @await Component.InvokeAsync("PersonsTable", new
+                        {
+                searchBy = ViewBag.CurrentSearchBy,
+                        searchString = ViewBag.CurrentSearchString,
+                        sortBy = ViewBag.CurrentSortBy,
+                        sortOrder = ViewBag.CurrentSortOrder
+                        })
+
+
+        </tbody>
+    </table>
+</form>
+
+

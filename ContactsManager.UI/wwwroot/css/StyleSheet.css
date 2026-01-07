@@ -1,0 +1,425 @@
+﻿/* ================= BASE ================= */
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 15px;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container {
+    min-width: 500px;
+}
+
+/* ================= NAVBAR ================= */
+
+.navbar {
+    background-color: #ffffff;
+    padding: 14px 20px;
+    border-bottom: 1px solid #000000;
+}
+
+.navbar-brand {
+    margin-right: 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #000000;
+}
+
+.navbar > ul {
+    list-style: none;
+    width: 100%;
+}
+
+    .navbar > ul > li {
+        width: 100%;
+    }
+
+        .navbar > ul > li > a:link,
+        .navbar > ul > li > a:visited {
+            padding: 8px 12px;
+            display: inline-block;
+            margin: 0 4px;
+            color: #000000;
+            text-decoration: none;
+            border: 1px solid transparent;
+        }
+
+        .navbar > ul > li > a:hover {
+            border: 1px solid #000000;
+        }
+
+.nav-active {
+    border: 1px solid #000000;
+}
+
+/* ================= PAGE ================= */
+
+.page-content {
+    min-height: 90vh;
+    padding: 24px;
+}
+
+.full-size-height {
+    min-height: 100vh;
+}
+
+/* ================= TABLE ================= */
+
+.table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: #ffffff;
+    margin: 20px auto;
+}
+
+    .table thead th {
+        padding: 14px;
+        font-weight: 700;
+        color: #000000;
+        text-align: left;
+        border-bottom: 2px solid #000000;
+    }
+
+    .table tbody td {
+        padding: 14px;
+        border: none;
+    }
+
+    .table tbody tr {
+        background-color: #ffffff;
+    }
+
+/* ================= WIDTHS ================= */
+
+.w-25 {
+    width: 25%;
+}
+
+.w-50 {
+    width: 50%;
+}
+
+.w-75 {
+    width: 75%;
+}
+
+.w-90 {
+    width: 90%;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+/* ================= SPACING ================= */
+
+.mt {
+    margin-top: 10px;
+}
+
+.mb {
+    margin-bottom: 10px;
+}
+
+.ml {
+    margin-left: 10px;
+}
+
+.mr {
+    margin-right: 10px;
+}
+
+.pt {
+    padding-top: 10px;
+}
+
+.pb {
+    padding-bottom: 10px;
+}
+
+.pl {
+    padding-left: 10px;
+}
+
+.pr {
+    padding-right: 10px;
+}
+
+.margin-auto {
+    margin: auto;
+}
+
+/* ================= COLORS (B/W ONLY) ================= */
+
+.grey-back,
+.blue-back {
+    background-color: #ffffff;
+}
+
+.white-back {
+    background-color: #ffffff;
+}
+
+.text-green,
+.text-red {
+    color: #000000;
+}
+
+/* ================= TEXT ================= */
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* ================= LAYOUT ================= */
+
+.float-left {
+    float: left;
+}
+
+.clear {
+    clear: both;
+}
+
+/* ================= LIST ================= */
+
+.list-container {
+    margin-top: 14px;
+}
+
+.list {
+    list-style: none;
+}
+
+    .list > li {
+        padding: 14px;
+        background-color: #ffffff;
+        margin-bottom: 8px;
+        border: 1px solid #000000;
+    }
+
+/* ================= HEADER & FOOTER ================= */
+
+.header {
+    background-color: #ffffff;
+    color: #000000;
+    padding: 20px;
+    font-weight: 700;
+    text-align: center;
+    border-bottom: 1px solid #000000;
+}
+
+.footer-content {
+    background-color: #ffffff;
+    color: #000000;
+    padding: 18px;
+    text-align: center;
+    border-top: 1px solid #000000;
+}
+
+/* ================= BOX ================= */
+
+.box {
+    margin: 20px;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #000000;
+}
+
+/* ================= FLEX ================= */
+
+.flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+    .flex > div {
+        padding: 16px;
+    }
+
+.flex-1 {
+    flex: 1;
+}
+
+.flex-2 {
+    flex: 2;
+}
+
+.flex-3 {
+    flex: 3;
+}
+
+.flex-4 {
+    flex: 4;
+}
+
+.flex-5 {
+    flex: 5;
+}
+
+.flex-6 {
+    flex: 6;
+}
+
+/* ================= LINKS ================= */
+
+a:link,
+a:visited {
+    color: #000000;
+}
+
+a.link-hover:link {
+    padding: 6px 8px;
+}
+
+a.link-hover:hover {
+    border: 1px solid #000000;
+}
+
+/* ================= BUTTONS ================= */
+
+.button {
+    padding: 8px 16px;
+    background-color: #ffffff;
+    border: 1px solid #000000;
+    color: #000000;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+    .button:hover {
+        background-color: #000000;
+        color: #ffffff;
+    }
+
+.button-blue-back,
+.button-green-back,
+.button-red-back {
+    background-color: #ffffff;
+    border: 1px solid #000000;
+    color: #000000;
+}
+
+/* ================= FORM LAYOUT FIX ================= */
+
+.form-field {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+    .form-field .w-25 {
+        width: 25%;
+    }
+
+    .form-field .flex-1 {
+        flex: 1;
+    }
+
+    /* Remove extra padding added by generic flex rule */
+    .form-field > div {
+        padding: 0;
+    }
+
+/* ================= INPUTS ================= */
+
+.form-input {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    background-color: #ffffff;
+    border: 1px solid #000000;
+    color: #000000;
+    width: 100%;
+}
+
+/* ================= LABELS ================= */
+
+.form-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* ================= RADIO BUTTONS ================= */
+
+.form-field input[type="radio"] {
+    width: auto;
+    margin-right: 4px;
+    margin-left: 0;
+}
+
+    .form-field input[type="radio"] + label {
+        margin-right: 14px;
+        font-weight: 500;
+    }
+
+/* Align radios in one line */
+.form-field .flex-1 {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* ================= CHECKBOX ================= */
+
+.form-field input[type="checkbox"] {
+    width: auto;
+    margin-right: 6px;
+}
+
+/* ================= TEXTAREA ================= */
+
+textarea.form-input {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* ================= BUTTON ================= */
+
+.button {
+    margin-top: 16px;
+}
+
+/* ================= ERROR LIST ================= */
+
+.text-red {
+    margin-top: 12px;
+    padding-left: 18px;
+    font-size: 0.85rem;
+}
+
+
+/* ================= RESPONSIVE ================= */
+
+@media screen and (min-width: 1000px) {
+    .navbar-brand {
+        display: inline-block;
+    }
+
+    .navbar > ul {
+        display: inline-block;
+        width: auto;
+    }
+
+        .navbar > ul > li {
+            display: inline-block;
+            width: auto;
+        }
+}

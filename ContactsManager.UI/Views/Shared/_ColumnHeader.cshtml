@@ -1,0 +1,12 @@
+﻿@if (ViewBag.CurrentSortBy == ViewBag.ColumnName && ViewBag.CurrentSortOrder == SortOrderEnum.Asc)
+{
+    <th><a href="~/persons/index?sortBy=@ViewBag.ColumnName&sortOrder=@SortOrderEnum.Desc&searchBy=@ViewBag.CurrentSearchBy&searchString=@ViewBag.CurrentSearchString">@ViewData["DisplayName"]</a></th>
+}
+else if (ViewBag.CurrentSortBy == ViewBag.ColumnName && ViewBag.CurrentSortOrder == SortOrderEnum.Desc)
+{
+    <th><a href="~/persons/index?sortBy=@ViewBag.ColumnName&sortOrder=@SortOrderEnum.Asc&searchBy=@ViewBag.CurrentSearchBy&searchString=@ViewBag.CurrentSearchString">@ViewBag.DisplayName</a></th>
+}
+else
+{
+    <th><a href="~/persons/index?sortBy=@ViewBag.ColumnName&sortOrder=@SortOrderEnum.Desc&searchBy=@ViewBag.CurrentSearchBy&searchString=@ViewBag.CurrentSearchString">@ViewBag.DisplayName</a></th>
+}

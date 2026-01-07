@@ -1,0 +1,103 @@
+﻿##############################
+# .NET / ASP.NET
+##############################
+
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+.vscode/
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+##############################
+# ASP.NET Core
+##############################
+
+# Secrets
+secrets.json
+appsettings.Development.json
+
+# Publish output
+publish/
+wwwroot/lib/
+
+##############################
+# Logs
+##############################
+
+*.log
+logs/
+
+##############################
+# Packages
+##############################
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+##############################
+# Testing
+##############################
+
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+##############################
+# Resharper
+##############################
+
+_ReSharper*/
+*.DotSettings.user
+
+##############################
+# Azure / DevOps
+##############################
+
+.azure-pipelines/
+*.publishsettings
+
+##############################
+# Docker
+##############################
+
+**/docker-compose.override.yml
+**/Dockerfile.user
+
+##############################
+# Node / Frontend (if any)
+##############################
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+##############################
+# Backup / temp files
+##############################
+
+*.bak
+*.tmp
+*.swp
