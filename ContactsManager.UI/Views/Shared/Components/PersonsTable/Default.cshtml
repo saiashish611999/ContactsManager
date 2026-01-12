@@ -10,6 +10,7 @@
         <td>@person.Address</td>
         <td>@person.CountryName</td>
         <td>@person.ReceiveNewsLetters</td>
-        <td><a asp-controller="Persons" asp-action="Edit" asp-route-personid="@person.PersonId">Edit</a></td>
+        <td><a asp-controller="Persons" asp-action="Edit" asp-route-personid="@person.PersonId">Edit</a> | <a asp-controller="Persons" asp-action="Delete" asp-route-personId="@person.PersonId">Delete</a></td>
+        
     </tr>
 }

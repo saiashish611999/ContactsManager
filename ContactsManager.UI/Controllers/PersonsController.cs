@@ -3,6 +3,7 @@ using ContactsManager.ServiceContracts.DTO;
 using ContactsManager.ServiceContracts.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Server.IISIntegration;
 
 namespace ContactsManager.UI.Controllers;
 
@@ -112,5 +113,19 @@ public sealed class PersonsController : Controller
         return RedirectToAction("Index", "Persons");
     }
 
-    
+    [HttpGet("[Action]")]
+    public IActionResult Delete(string personId)
+    {
+        PersonResponse? person = _personsService.GetPersonByPersonId(personId);
+        return View("Delete", person);
+    }
+
+    [HttpPost("[Action]")]
+    public IActionResult Delete(string personId, string personName)
+    {
+        bool idDeleted = _personsService.DeletePerson(personId);
+        if (idDeleted)
+            return RedirectToAction("Index","Persons");
+        return RedirectToAction("Delete", "Persons");
+    }
 }
