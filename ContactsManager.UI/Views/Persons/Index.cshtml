@@ -1,0 +1,226 @@
+﻿@model IEnumerable<PersonResponse>
+
+@{
+    ViewBag.Title = "Persons";
+}
+
+<style>
+    .persons-table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+        .persons-table th {
+            background-color: #212529 !important;
+            color: white;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+            .persons-table th a {
+                color: white;
+                text-decoration: none;
+            }
+
+                .persons-table th a:hover {
+                    color: #dcdcdc;
+                }
+
+        .persons-table td {
+            vertical-align: middle;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Persons</h2>
+
+    <div>
+        <a asp-controller="Persons"
+           asp-action="GeneratePersonsPdf"
+           target="_blank"
+           class="btn btn-danger me-2">
+            <i class="fa-solid fa-file-pdf"></i> Export PDF
+        </a>
+
+        <a asp-controller="Persons"
+           asp-action="GeneratePersonsCsv"
+           target="_blank"
+           class="btn btn-danger me-2">
+            <i class="fa-solid fa-file-csv"></i> Export CSV
+        </a>
+
+        <a asp-controller="Persons"
+           asp-action="GenerateActionPersonsCsv"
+           target="_blank"
+           class="btn btn-danger me-2">
+            <i class="fa-solid fa-file-csv"></i> Export CSV Advanced
+        </a>
+
+        <a asp-controller="Persons"
+           asp-action="GeneratePersonsExcel"
+           target="_blank"
+           class="btn btn-danger me-2">
+            <i class="fa-solid fa-file-excel"></i> Export Excel
+        </a>
+
+        <a asp-controller="Persons"
+           asp-action="Create"
+           class="btn btn-success">
+            <i class="fa-solid fa-plus"></i> Create Person
+        </a>
+    </div>
+</div>
+
+<form asp-controller="Persons"
+      asp-action="Index"
+      method="get"
+      class="row g-2 mb-3">
+
+    <div class="col-md-3">
+        <select class="form-select" name="searchBy">
+            <option value="">Please Select</option>
+
+            @foreach (var searchBy in ViewBag.SearchByList)
+            {
+                if (ViewBag.CurrentSearchBy == searchBy.Value)
+                {
+                    <option value="@searchBy.Value" selected>
+                        @searchBy.Key
+                    </option>
+                }
+                else
+                {
+                    <option value="@searchBy.Value">
+                        @searchBy.Key
+                    </option>
+                }
+            }
+        </select>
+    </div>
+
+    <div class="col-md-5">
+        <input class="form-control"
+               type="text"
+               name="searchString"
+               placeholder="Search..."
+               value="@ViewBag.CurrentSearchString" />
+    </div>
+
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-magnifying-glass"></i> Search
+        </button>
+    </div>
+
+    <div class="col-auto">
+        <a asp-controller="Persons"
+           asp-action="Index"
+           class="btn btn-secondary">
+            <i class="fa-solid fa-rotate-left"></i> Clear
+        </a>
+    </div>
+
+</form>
+
+<table class="table table-bordered table-hover table-striped persons-table">
+    <thead>
+        <tr>
+            @{
+                await Html.RenderPartialAsync("_TableGridColumnsPartial",
+                new ViewDataDictionary(ViewData)
+                {
+                        { "ColumnName", nameof(PersonResponse.PersonName) },
+                        { "DisplayName", "Name" }
+                });
+
+                await Html.RenderPartialAsync("_TableGridColumnsPartial",
+                new ViewDataDictionary(ViewData)
+                {
+                        { "ColumnName", nameof(PersonResponse.Email) },
+                        { "DisplayName", "Email" }
+                });
+
+                await Html.RenderPartialAsync("_TableGridColumnsPartial",
+                new ViewDataDictionary(ViewData)
+                {
+                        { "ColumnName", nameof(PersonResponse.Gender) },
+                        { "DisplayName", "Gender" }
+                });
+
+                await Html.RenderPartialAsync("_TableGridColumnsPartial",
+                new ViewDataDictionary(ViewData)
+                {
+                        { "ColumnName", nameof(PersonResponse.DateOfBirth) },
+                        { "DisplayName", "Date Of Birth" }
+                });
+
+                await Html.RenderPartialAsync("_TableGridColumnsPartial",
+                new ViewDataDictionary(ViewData)
+                {
+                        { "ColumnName", nameof(PersonResponse.Age) },
+                        { "DisplayName", "Age" }
+                });
+
+                await Html.RenderPartialAsync("_TableGridColumnsPartial",
+                new ViewDataDictionary(ViewData)
+                {
+                        { "ColumnName", nameof(PersonResponse.CountryName) },
+                        { "DisplayName", "Country" }
+                });
+
+                await Html.RenderPartialAsync("_TableGridColumnsPartial",
+                new ViewDataDictionary(ViewData)
+                {
+                        { "ColumnName", nameof(PersonResponse.Address) },
+                        { "DisplayName", "Address" }
+                });
+            }
+
+            <th style="width:220px;">Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @if (Model.Any())
+        {
+            foreach (var person in Model)
+            {
+                <tr>
+                    <td>@person.PersonName</td>
+                    <td>@person.Email</td>
+                    <td>@person.Gender?.ToLowerInvariant()</td>
+                    <td>@person.DateOfBirth?.ToString("dd MMM yyyy")</td>
+                    <td>@person.Age</td>
+                    <td>@person.CountryName</td>
+                    <td>@person.Address</td>
+                    <td>
+                        <a asp-controller="Persons"
+                           asp-action="Update"
+                           asp-route-personId="@person.PersonId"
+                           class="btn btn-sm btn-primary">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                        </a>
+
+                        <a asp-controller="Persons"
+                           asp-action="Delete"
+                           asp-route-personId="@person.PersonId"
+                           class="btn btn-sm btn-danger">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8" class="text-center">
+                    No persons found.
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

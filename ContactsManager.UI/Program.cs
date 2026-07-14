@@ -9,6 +9,8 @@ using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllersWithViews();
+
 string? connectionString = builder.Configuration.GetConnectionString("Database");
 
 ArgumentNullException.ThrowIfNull(connectionString);
@@ -20,11 +22,15 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 
 // services
 builder.Services.AddScoped<ICountriesService, CountriesService>();
+builder.Services.AddScoped<IPersonsService, PersonsService>();
 
 // repositories
 builder.Services.AddScoped<ICountriesRepository, CountriesRepository>();
+builder.Services.AddScoped<IPersonsRepository, PersonsRepository>();
 
 var app = builder.Build();
+
+app.UseStaticFiles();
 
 if (!app.Environment.IsEnvironment("Test"))
 {
@@ -32,6 +38,8 @@ if (!app.Environment.IsEnvironment("Test"))
 }
 await app.InitializeDatabaseAsync();
 
-app.MapGet("/", () => "Hello World!");
+app.UseRouting();
+
+app.MapControllers();
 
 app.Run();
