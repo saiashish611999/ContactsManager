@@ -43,7 +43,7 @@ public interface IPersonsService
     /// <param name="sortBy"></param>
     /// <param name="sortOrder"></param>
     /// <returns></returns>
-    Task<List<PersonResponse>> GetSortedPersonsAsync(List<PersonResponse> allPersons, string? sortBy, SortOrder sortOrder);
+    List<PersonResponse> GetSortedPersonsAsync(List<PersonResponse> allPersons, string? sortBy, SortOrder sortOrder);
 
     /// <summary>
     /// method responsible to update person
@@ -58,4 +58,22 @@ public interface IPersonsService
     /// <param name="personID"></param>
     /// <returns></returns>
     Task<bool> DeletePersonAsync(Guid? personID);
+
+    /// <summary>
+    /// method responsible to get the persons csv
+    /// </summary>
+    /// <returns></returns>
+    Task<MemoryStream> GetPersonsCsv();
+
+    /// <summary>
+    /// method responsible to get the persons csv advanced
+    /// </summary>
+    /// <returns></returns>
+    Task<MemoryStream> GetPersonsCsvAdvanced();
+
+    /// <summary>
+    /// method responsible to get the persons excel
+    /// </summary>
+    /// <returns></returns>
+    Task<MemoryStream> GetPersonsExcel();
 }

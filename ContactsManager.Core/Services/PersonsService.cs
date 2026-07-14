@@ -4,7 +4,12 @@ using ContactsManager.Core.Enums;
 using ContactsManager.Core.Helpers;
 using ContactsManager.Core.RepositoryContracts;
 using ContactsManager.Core.ServiceContracts;
+using CsvHelper;
 using System.Reflection;
+using System.Globalization;
+using CsvHelper.Configuration;
+using OfficeOpenXml;
+using System.Drawing;
 
 namespace ContactsManager.Core.Services;
 public sealed class PersonsService : IPersonsService
@@ -107,13 +112,165 @@ public sealed class PersonsService : IPersonsService
         return resposne;
     }
 
-    public Task<List<PersonResponse>> GetSortedPersonsAsync(List<PersonResponse> allPersons, string? sortBy, SortOrder sortOrder)
+    public async Task<MemoryStream> GetPersonsCsv()
     {
-        throw new NotImplementedException();
+        MemoryStream memoryStream = new MemoryStream();
+
+        StreamWriter streamWriter = new StreamWriter(memoryStream);
+
+        CsvWriter writer = new CsvWriter(streamWriter, CultureInfo.InvariantCulture, true);
+
+        writer.WriteHeader<PersonResponse>();
+
+        await writer.NextRecordAsync();
+
+        List<PersonResponse> allPersons = await GetAllPersonsAsync();
+
+        await writer.WriteRecordsAsync(allPersons);
+
+        await writer.FlushAsync();
+
+        memoryStream.Position = 0;
+
+        return memoryStream;
     }
 
-    public Task<PersonResponse> UpdatePersonAsync(PersonUpdateRequest? personUpdateRequest)
+    public async Task<MemoryStream> GetPersonsCsvAdvanced()
     {
-        throw new NotImplementedException();
+        MemoryStream memoryStream = new MemoryStream();
+
+        StreamWriter streamWriter = new StreamWriter(memoryStream);
+
+        CsvConfiguration configuration = new CsvConfiguration(CultureInfo.InvariantCulture);
+
+        CsvWriter writer = new CsvWriter(streamWriter, configuration, true);
+
+        writer.WriteField(nameof(PersonResponse.PersonName));
+
+        writer.WriteField(nameof(PersonResponse.Email));
+
+        writer.WriteField(nameof(PersonResponse.Gender));
+
+        await writer.NextRecordAsync();
+
+        List<PersonResponse> allPersons = await GetAllPersonsAsync();
+
+        foreach (PersonResponse person in allPersons)
+        {
+            writer.WriteField(person.PersonName);
+
+            writer.WriteField(person.Email);
+
+            writer.WriteField(person.Gender);
+
+            await writer.NextRecordAsync();
+        }
+
+        await writer.FlushAsync();
+
+        memoryStream.Position = 0;
+
+        return memoryStream;
+    }
+
+    public async Task<MemoryStream> GetPersonsExcel()
+    {
+        MemoryStream memoryStream = new MemoryStream();
+
+        using (ExcelPackage package = new ExcelPackage(memoryStream))
+        {
+            ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Persons");
+
+            worksheet.Cells["A1"].Value = "Person Name";
+
+            worksheet.Cells["B1"].Value = "Email";
+
+            worksheet.Cells["C1"].Value = "Gender";
+
+            using (ExcelRange headerCells = worksheet.Cells["A1:C1"])
+            {
+                headerCells.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+
+                headerCells.Style.Fill.BackgroundColor.SetColor(Color.Gray);
+
+                headerCells.Style.Font.Bold = true;
+            }
+
+            int dataRowNumber = 2;
+
+            List<PersonResponse> allPersons = await GetAllPersonsAsync();
+
+            foreach (PersonResponse person in allPersons)
+            {
+                worksheet.Cells[$"A{dataRowNumber}"].Value = person.PersonName;
+
+                worksheet.Cells[$"B{dataRowNumber}"].Value = person.Email;
+
+                worksheet.Cells[$"C{dataRowNumber}"].Value = person.Gender;
+
+                dataRowNumber++;
+            }
+
+            worksheet.Cells[$"A1:C{dataRowNumber}"].AutoFitColumns();
+
+            await package.SaveAsync();
+        }
+
+        memoryStream.Position = 0;
+
+        return memoryStream;
+    }
+
+    public List<PersonResponse> GetSortedPersonsAsync(List<PersonResponse> allPersons, string? sortBy, SortOrder sortOrder)
+    {
+
+        if (string.IsNullOrEmpty(sortBy))
+        {
+            return allPersons;
+        }
+
+        PropertyInfo? propInfo = typeof(PersonResponse).GetProperty(sortBy);
+
+        if (propInfo is null)
+        {
+            return allPersons;
+        }
+
+        List<PersonResponse> sortedPersons = sortOrder == SortOrder.ASCENDING ?
+            allPersons.OrderBy(person => propInfo.GetValue(person)).ToList() :
+            allPersons.OrderByDescending(person => propInfo.GetValue(person)).ToList();
+
+        return sortedPersons;
+    }
+
+    public async Task<PersonResponse> UpdatePersonAsync(PersonUpdateRequest? personUpdateRequest)
+    {
+
+        ArgumentNullException.ThrowIfNull(personUpdateRequest);
+
+        ValidationHelper.ValidateRequest(personUpdateRequest);
+
+        Person? person = await personsRepository.GetPersonByPersonIdWithTrackingAsync(personUpdateRequest.PersonId);
+
+        if (person is null)
+        {
+            throw new InvalidDataException("person id doesn't exist");
+        }
+
+        person.PersonName = personUpdateRequest.PersonName;
+
+        person.Email = personUpdateRequest.Email;
+
+        person.Gender = personUpdateRequest.Gender.ToString();
+
+        person.Address = personUpdateRequest.Address;
+
+        person.DateOfBirth = personUpdateRequest.DateOfBirth;
+
+        person.CountryId = personUpdateRequest.CountryId;
+
+        await personsRepository.SaveChangesAsync();
+
+        return person.ToResponse();
     }
 }

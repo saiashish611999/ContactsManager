@@ -5,6 +5,7 @@ using ContactsManager.Infrastructure;
 using ContactsManager.Infrastructure.Repositories;
 using ContactsManager.UI.Extensions;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,10 @@ builder.Services.AddScoped<ICountriesRepository, CountriesRepository>();
 
 var app = builder.Build();
 
+if (!app.Environment.IsEnvironment("Test"))
+{
+    ExcelPackage.License.SetNonCommercialPersonal(Guid.NewGuid().ToString());
+}
 await app.InitializeDatabaseAsync();
 
 app.MapGet("/", () => "Hello World!");

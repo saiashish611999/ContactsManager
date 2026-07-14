@@ -1,4 +1,5 @@
 ﻿using ContactsManager.Core.DataTranferObjects.CountryDtos;
+using Microsoft.AspNetCore.Http;
 
 namespace ContactsManager.Core.ServiceContracts;
 
@@ -26,4 +27,11 @@ public interface ICountriesService
     /// <param name="countryId"></param>
     /// <returns></returns>
     Task<CountryResponse?> GetCountryByCountryIdAsync(Guid? countryId);
+
+    /// <summary>
+    /// method responsile to add countries from excel file
+    /// </summary>
+    /// <param name="formFile"></param>
+    /// <returns></returns>
+    Task<int> UploadCountriesFromExcel(IFormFile formFile);
 }

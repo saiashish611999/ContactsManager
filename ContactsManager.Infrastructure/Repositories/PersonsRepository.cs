@@ -49,4 +49,20 @@ public sealed class PersonsRepository : IPersonsRepository
 
         return person;
     }
+
+    public async Task<Person?> GetPersonByPersonIdWithTrackingAsync(Guid? personId)
+    {
+        ArgumentNullException.ThrowIfNull(nameof(personId));
+
+        Person? person = await database.Persons
+            .Include(person => person.Country)
+            .FirstOrDefaultAsync(person => person.PersonId == personId);
+
+        return person;
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        await database.SaveChangesAsync();
+    }
 }

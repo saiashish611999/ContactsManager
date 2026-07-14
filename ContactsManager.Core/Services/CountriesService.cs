@@ -3,6 +3,8 @@ using ContactsManager.Core.Entities;
 using ContactsManager.Core.Helpers;
 using ContactsManager.Core.RepositoryContracts;
 using ContactsManager.Core.ServiceContracts;
+using Microsoft.AspNetCore.Http;
+using OfficeOpenXml;
 
 namespace ContactsManager.Core.Services;
 public sealed class CountriesService: ICountriesService
@@ -59,5 +61,40 @@ public sealed class CountriesService: ICountriesService
         CountryResponse response = country.ToCountryResponse();
 
         return response;
+    }
+
+    public async Task<int> UploadCountriesFromExcel(IFormFile formFile)
+    {
+        MemoryStream memoryStream = new MemoryStream();
+
+        int noOfRowsInserted = 0;
+
+        await formFile.CopyToAsync(memoryStream);
+
+        using (ExcelPackage package = new ExcelPackage(memoryStream))
+        {
+            ExcelWorksheet worksheet = package.Workbook.Worksheets["countries"];
+
+            int rowCount = worksheet.Dimension.Rows;
+
+            for (int index = 2; index <= rowCount; index++)
+            {
+                string? cellValue = worksheet.Cells[$"A{rowCount}"].Value.ToString();
+
+                if (!string.IsNullOrEmpty(cellValue))
+                {
+                    CountryAddRequest countryAddRequest = new CountryAddRequest()
+                    {
+                        CountryName = cellValue
+                    };
+
+                    await AddCountryAsync(countryAddRequest);
+
+                    noOfRowsInserted++;
+                }
+            }
+        }
+
+        return noOfRowsInserted;
     }
 }

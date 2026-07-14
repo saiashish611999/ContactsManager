@@ -1,11 +1,13 @@
 ﻿using AutoFixture;
 using ContactsManager.Core.DataTranferObjects.PersonDtos;
 using ContactsManager.Core.Entities;
+using ContactsManager.Core.Enums;
 using ContactsManager.Core.RepositoryContracts;
 using ContactsManager.Core.ServiceContracts;
 using ContactsManager.Core.Services;
 using FluentAssertions;
 using Moq;
+using OfficeOpenXml;
 
 namespace ContactsManager.Tests.ServiceTests;
 public sealed class PersonsServiceTests
@@ -24,6 +26,8 @@ public sealed class PersonsServiceTests
         personsRepository = personsReposiotryMock.Object;
 
         personsService = new PersonsService(personsRepository);
+
+        ExcelPackage.License.SetNonCommercialPersonal("Sai Ashish");
     }
 
     #region AddPersons
@@ -274,6 +278,239 @@ public sealed class PersonsServiceTests
         filteredPersons.Count.Should().Be(1);
 
         filteredPersons.Should().OnlyContain(p => p.Email.Contains("ash", StringComparison.OrdinalIgnoreCase));
+
+        personsReposiotryMock.Verify(method => method.GetAllPersonsAsync(), Times.Once);
+
+        personsReposiotryMock.VerifyNoOtherCalls();
+    }
+    #endregion
+
+    #region GetSortedPersons
+    [Theory]
+    [InlineData(SortOrder.ASCENDING)]
+    [InlineData(SortOrder.DESCENDING)]
+    public void GetSortedPersons_SortedPersonsResponse(SortOrder sortOrder)
+    {
+        List<PersonResponse> personsResponseMockObject = fixture.Build<PersonResponse>()
+            .CreateMany(10)
+            .ToList();
+
+        List<PersonResponse> sortedPersons = personsService.GetSortedPersonsAsync(personsResponseMockObject, nameof(PersonResponse.PersonName), sortOrder);
+
+        if (sortOrder == SortOrder.ASCENDING)
+        {
+            sortedPersons.Should().BeInAscendingOrder(p => p.PersonName);
+        }
+        else
+        {
+            sortedPersons.Should().BeInDescendingOrder(p => p.PersonName);
+        }
+
+        personsReposiotryMock.VerifyNoOtherCalls();
+    }
+    #endregion
+
+    #region UpdatePerson
+    [Fact]
+    public async Task UpdatePerson_ThrowArgumentNullException_NullRequest()
+    {
+        Func<Task> action = async () =>
+        {
+            await personsService.UpdatePersonAsync(null);
+        };
+
+        await action.Should().ThrowAsync<ArgumentNullException>();
+
+        personsReposiotryMock.VerifyNoOtherCalls();
+    }
+
+    [Theory]
+    [InlineData("ashish", null)]
+    [InlineData(null, "ashish@gmail.com")]
+    [InlineData("ashish", "ashish")]
+    public async Task UpdatePerson_ThrowsArgumentException_NullOrInvalidParameters(string? Name, string? Email)
+    {
+        PersonUpdateRequest personUpdateRequestMock = fixture.Build<PersonUpdateRequest>()
+            .With(prop => prop.PersonName, Name)
+            .With(prop => prop.Email, Email)
+            .Without(prop => prop.CountryId)
+            .Create();
+
+        Func<Task> action = async () =>
+        {
+            await personsService.UpdatePersonAsync(personUpdateRequestMock);
+        };
+
+        await action.Should().ThrowAsync<ArgumentException>();
+
+        personsReposiotryMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task UpdatePerson_ThrowsInvalidOperationException_InvalidPersonId()
+    {
+        PersonUpdateRequest updateRequestMock = fixture.Build<PersonUpdateRequest>()
+            .With(prop => prop.Email, "ashish@gmail.com")
+            .Create();
+
+        personsReposiotryMock.Setup(method => method.GetPersonByPersonIdWithTrackingAsync(It.IsAny<Guid?>()))
+             .ReturnsAsync(null as Person);
+
+        Func<Task> action = async () =>
+        {
+            await personsService.UpdatePersonAsync(updateRequestMock);
+        };
+
+        await action.Should().ThrowAsync<InvalidDataException>();
+
+        personsReposiotryMock.Verify(method => method.GetPersonByPersonIdWithTrackingAsync(It.IsAny<Guid?>()), Times.Once);
+
+        personsReposiotryMock.Verify(method => method.SaveChangesAsync(), Times.Never);
+
+        personsReposiotryMock.VerifyNoOtherCalls();
+
+    }
+
+    [Fact]
+    public async Task UpdatePerson_ReturnsPersonResponse_ValidPersonId()
+    {
+        Person personMockObject = fixture.Build<Person>()
+            .With(prop => prop.PersonName, "ashish")
+            .With(prop => prop.Email, "ashish@gmail.com")
+            .With(prop => prop.Gender, "MALE")
+            .Without(prop => prop.Country)
+            .Create();
+
+        personsReposiotryMock.Setup(method => method.GetPersonByPersonIdWithTrackingAsync(It.IsAny<Guid?>()))
+            .ReturnsAsync(personMockObject);
+
+        personsReposiotryMock.Setup(method => method.SaveChangesAsync()).Returns(Task.CompletedTask);
+
+        PersonUpdateRequest updateRequest = new()
+        {
+            PersonId = personMockObject.PersonId,
+            PersonName = personMockObject.PersonName!,
+            Email = "praveen@gmail.com",
+            Gender = (Gender)Enum.Parse(typeof(Gender), personMockObject.Gender!),
+            Address = personMockObject.Address,
+            CountryId = personMockObject.CountryId,
+            DateOfBirth = personMockObject.DateOfBirth
+        };
+
+        PersonResponse response = await personsService.UpdatePersonAsync(updateRequest);
+
+        response.Email.Should().Be(updateRequest.Email);
+
+        personsReposiotryMock.Verify(method => method.GetPersonByPersonIdWithTrackingAsync(It.IsAny<Guid?>()), Times.Once);
+
+        personsReposiotryMock.Verify(method => method.SaveChangesAsync(), Times.Once);
+
+        personsReposiotryMock.VerifyNoOtherCalls();
+    }
+    #endregion
+
+    #region GetPersonsCsv
+    [Fact]
+    public async Task GetPersonsCsv_ShouldReturnMemoryStream()
+    {
+        List<Person> personsMockObject = fixture.Build<Person>()
+           .With(prop => prop.Email, "ashish@gmail.com")
+           .Without(prop => prop.Country)
+           .CreateMany(5)
+           .ToList();
+
+        personsReposiotryMock.Setup(method => method.GetAllPersonsAsync()).ReturnsAsync(personsMockObject);
+
+        MemoryStream memoryStream = await personsService.GetPersonsCsv();
+
+        memoryStream.Should().BeOfType<MemoryStream>();
+
+        memoryStream.Should().NotBeNull();
+
+        memoryStream.Length.Should().BeGreaterThan(0);
+
+        using StreamReader reader = new StreamReader(memoryStream);
+
+        string? csv = await reader.ReadToEndAsync();
+
+        csv.Should().Contain("PersonName");
+
+        csv.Should().Contain("Email");
+
+        personsReposiotryMock.Verify(method => method.GetAllPersonsAsync(), Times.Once);
+
+        personsReposiotryMock.VerifyNoOtherCalls();
+    }
+
+    #endregion
+
+    #region GetPersonsCsvAdvanced
+    [Fact]
+    public async Task GetPersonsCsvAdvanced_ReturnsMemoryStreamContainsData()
+    {
+        List<Person> personsMockObject = fixture.Build<Person>()
+           .With(prop => prop.Email, "ashish@gmail.com")
+           .Without(prop => prop.Country)
+           .CreateMany(10)
+           .ToList();
+
+        personsReposiotryMock.Setup(method => method.GetAllPersonsAsync()).ReturnsAsync(personsMockObject);
+
+        MemoryStream memoryStream = await personsService.GetPersonsCsvAdvanced();
+
+        memoryStream.Length.Should().BeGreaterThan(0);
+
+        memoryStream.Should().NotBeNull();
+
+        using StreamReader reader = new StreamReader(memoryStream);
+
+        string? csv = await reader.ReadToEndAsync();
+
+        csv.Should().Contain("PersonName");
+
+        csv.Should().Contain("Email");
+
+        csv.Should().Contain("Gender");
+
+        personsReposiotryMock.Verify(method => method.GetAllPersonsAsync(), Times.Once);
+
+        personsReposiotryMock.VerifyNoOtherCalls();
+    }
+    #endregion
+
+    #region GetPersonsExcel
+    [Fact]
+    public async Task GetPersonsExcel_ShouldReturnMemoryStream()
+    {
+        List<Person> personsMockObject = fixture.Build<Person>()
+           .With(prop => prop.Email, "ashish@gmail.com")
+           .Without(prop => prop.Country)
+           .CreateMany(10)
+           .ToList();
+
+        personsReposiotryMock.Setup(method => method.GetAllPersonsAsync()).ReturnsAsync(personsMockObject);
+
+        MemoryStream memoryStream = await personsService.GetPersonsExcel();
+
+        memoryStream.Should().NotBeNull();
+
+        memoryStream.Length.Should().BeGreaterThan(0);
+
+        memoryStream.Position = 0;
+
+        ExcelPackage.License.SetNonCommercialPersonal("Tests");
+
+        using ExcelPackage package = new ExcelPackage(memoryStream);
+
+        ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+
+        worksheet.Should().NotBeNull();
+
+        worksheet.Cells["A1"].Text.Should().Be("Person Name");
+
+        worksheet.Cells["B1"].Text.Should().Be("Email");
+        
+        worksheet.Cells["C1"].Text.Should().Be("Gender");       
 
         personsReposiotryMock.Verify(method => method.GetAllPersonsAsync(), Times.Once);
 

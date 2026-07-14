@@ -33,4 +33,17 @@ public interface IPersonsRepository
     /// <param name="personId"></param>
     /// <returns></returns>
     Task<bool> DeletePersonAsync(Guid? personId);
+
+    /// <summary>
+    /// method responsible to get the person with id and country and tracking
+    /// </summary>
+    /// <param name="personId"></param>
+    /// <returns></returns>
+    Task<Person?> GetPersonByPersonIdWithTrackingAsync(Guid? personId);
+
+    /// <summary>
+    /// method responsible to save changes
+    /// </summary>
+    /// <returns></returns>
+    Task SaveChangesAsync();
 }
