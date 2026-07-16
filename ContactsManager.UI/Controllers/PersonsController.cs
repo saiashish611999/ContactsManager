@@ -101,4 +101,80 @@ public sealed class PersonsController : Controller
         return RedirectToAction("Index", "Persons");
     }
     #endregion
+
+    #region Edit
+    [HttpGet]
+    [Route("[action]/{personId:guid}")]
+    public async Task<IActionResult> Update([FromRoute] Guid? personId)
+    {
+        PersonResponse? person = await personsService.GetPersonByPersonIdAsync(personId);
+
+        if (person is null)
+        {
+            return RedirectToAction("Index", "Persons");
+        }
+
+        await LoadCountries();
+
+        PersonUpdateRequest updateRequest = person.ToUpdateRequest();
+
+        return View("Update", updateRequest);
+    }
+
+    [HttpPost]
+    [Route("[action]/{personId:guid}")]
+    public async Task<IActionResult> Update([FromRoute] Guid? personId, [FromForm] PersonUpdateRequest? personUpdateRequest)
+    {
+        if (personUpdateRequest is null || !ModelState.IsValid)
+        {
+            await LoadCountries();
+
+            return View("Update");
+        }
+
+        PersonResponse? person = await personsService.GetPersonByPersonIdAsync(personId);
+
+        if (person is null)
+        {
+            return RedirectToAction("Index", "Persons");
+        }
+
+        PersonResponse updatedResponse = await personsService.UpdatePersonAsync(personUpdateRequest);
+
+        return RedirectToAction("Index", "Persons");
+    }
+    #endregion
+
+    #region Delete
+    [HttpGet]
+    [Route("[action]/{personId:guid}")]
+    public async Task<IActionResult> Delete([FromRoute] Guid personId)
+    {
+        PersonResponse? person = await personsService.GetPersonByPersonIdAsync(personId);
+
+        if (person is null)
+        {
+            return RedirectToAction("Index", "Persons");
+        }
+
+        return View("Delete", person.ToUpdateRequest());
+    }
+
+    [HttpPost]
+    [Route("[action]/{personId:guid}")]
+    public async Task<IActionResult> DeleteConfirmed(
+        [FromRoute] Guid personId)
+    {
+        PersonResponse? person = await personsService.GetPersonByPersonIdAsync(personId);
+
+        if (person is null)
+        {
+            return RedirectToAction("Index", "Persons");
+        }
+
+        await personsService.DeletePersonAsync(personId);
+
+        return RedirectToAction("Index", "Persons");
+    }
+    #endregion
 }

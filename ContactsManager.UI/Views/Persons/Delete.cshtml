@@ -1,0 +1,39 @@
+﻿@model PersonUpdateRequest
+
+@{
+    ViewBag.Title = "Delete Person";
+}
+
+<h2>Delete Person</h2>
+
+<div class="card mt-3">
+    <div class="card-body">
+
+        <h5 class="text-danger">Are you sure you want to delete this person?</h5>
+
+        <hr />
+
+        <div class="mb-3">
+            <strong>Name:</strong>
+            @Model.PersonName
+        </div>
+
+        <div class="mb-3">
+            <strong>Email:</strong>
+            @Model.Email
+        </div>
+
+        <form asp-controller="Persons" asp-action="DeleteConfirmed" asp-route-personId="@Model.PersonId" method="post">
+
+            <button type="submit" class="btn btn-danger">
+                Delete
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+</div>
