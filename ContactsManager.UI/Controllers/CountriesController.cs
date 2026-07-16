@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace ContactsManager.UI.Controllers;
 
 [Route("[controller]")]
-[Controller]
+[Controller]  
 public sealed class CountriesController: Controller
 {
     private readonly ICountriesService countriesService;
@@ -87,6 +87,11 @@ public sealed class CountriesController: Controller
     public async Task<IActionResult> Delete(Guid countryId)
     {
         CountryResponse? country = await countriesService.GetCountryByCountryIdAsync(countryId);
+
+        if (country is null)
+        {
+            throw new InvalidDataException("invlaid country id");
+        }
 
         return View("Delete", country);
     }
