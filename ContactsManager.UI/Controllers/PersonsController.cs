@@ -101,7 +101,7 @@ public sealed class PersonsController : Controller
         {
             await LoadCountries();
 
-            return View("Create");
+            return View("Create", personAddRequest);
         }
 
         await personsService.AddPersonAsync(personAddRequest);

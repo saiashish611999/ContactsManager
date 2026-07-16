@@ -98,5 +98,71 @@ public sealed class PersonsControllerTests
 
         personsServiceMock.VerifyNoOtherCalls();
     }
+
+    [Fact]
+    public async Task Create_Post_ReturnsCreateViewIfModelStateErrors()
+    {
+        List<CountryResponse> countriesObject = fixture.Create<List<CountryResponse>>();
+
+        PersonAddRequest personAddRequestObject = fixture.Build<PersonAddRequest>()
+            .With(prop => prop.Email, "saiashish@gmail.com")
+            .With(prop => prop.Gender, Gender.MALE)
+            .Create();
+
+        countriesServiceMock.Setup(method => method.GetAllCountriesAsync())
+            .ReturnsAsync(countriesObject);
+
+        PersonsController personsController = new PersonsController(personsService, countriesService);
+
+        personsController.ModelState.AddModelError("PersonName", "Person Name is not valid");
+
+        IActionResult actionResult = await personsController.Create(personAddRequestObject);
+
+        ViewResult result = Assert.IsType<ViewResult>(actionResult);
+
+        result.ViewData.Model.Should().Be(personAddRequestObject);
+
+        result.ViewData.Model.Should().BeAssignableTo<PersonAddRequest>();
+
+        result.ViewName.Should().Be("Create");
+
+        countriesServiceMock.Verify(method => method.GetAllCountriesAsync(), Times.Once);
+
+        countriesServiceMock.VerifyNoOtherCalls();
+
+        personsServiceMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Create_Post_ReturnsRedirectToActionIfNoModelError()
+    {
+        PersonResponse person = fixture.Create<PersonResponse>();
+
+        PersonAddRequest personAddRequestObject = fixture.Build<PersonAddRequest>()
+           .With(prop => prop.Email, "saiashish@gmail.com")
+           .With(prop => prop.Gender, Gender.MALE)
+           .Create();
+
+        personsServiceMock.Setup(method => method.AddPersonAsync(It.IsAny<PersonAddRequest?>()))
+            .ReturnsAsync(person);
+
+        PersonsController personsController = new PersonsController(personsService, countriesService);       
+
+        IActionResult actionResult = await personsController.Create(personAddRequestObject);
+
+        RedirectToActionResult result = Assert.IsType<RedirectToActionResult>(actionResult);
+
+        result.ActionName.Should().Be("Index");
+
+        result.ControllerName.Should().Be("Persons");
+
+        countriesServiceMock.Verify(method => method.GetAllCountriesAsync(), Times.Never);
+
+        personsServiceMock.Verify(method => method.AddPersonAsync(It.IsAny<PersonAddRequest?>()), Times.Once);
+
+        countriesServiceMock.VerifyNoOtherCalls();
+
+        personsServiceMock.VerifyNoOtherCalls();
+    }
     #endregion
 }
