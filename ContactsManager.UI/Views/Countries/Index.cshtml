@@ -1,0 +1,95 @@
+﻿@model IEnumerable<CountryResponse>
+
+@{
+    ViewBag.Title = "Countries";
+}
+
+<style>
+    .persons-table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+        .persons-table th {
+            background-color: #212529 !important;
+            color: white;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+            .persons-table th a {
+                color: white;
+                text-decoration: none;
+            }
+
+                .persons-table th a:hover {
+                    color: #dcdcdc;
+                }
+
+        .persons-table td {
+            vertical-align: middle;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Countries</h2>
+
+    <div>
+
+        <a asp-controller="Countries"
+           asp-action="Create"
+           class="btn btn-success">
+            <i class="fa-solid fa-plus"></i> Create Country
+        </a>
+
+        <a asp-controller="Countries"
+           asp-action="UploadCountries"
+           class="btn btn-success">
+            <i class="fa-solid fa-file-excel"></i> Upload Excel
+        </a>
+
+    </div>
+</div>
+
+
+<table class="table table-bordered table-hover table-striped persons-table">
+    <thead>
+        <tr>
+            <th>Country Id</th>
+            <th>Country Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @if (Model.Any())
+        {
+            foreach (var country in Model)
+            {
+                <tr>
+                    <td>@country.CountryId</td>
+                    <td>@country.CountryName</td>
+                    <td>
+                        <a asp-controller="Countries"
+                           asp-action="Delete"
+                           asp-route-countryId="@country.CountryId"
+                           class="btn btn-sm btn-danger">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8" class="text-center">
+                    No countries found.
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

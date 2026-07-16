@@ -34,4 +34,11 @@ public interface ICountriesService
     /// <param name="formFile"></param>
     /// <returns></returns>
     Task<int> UploadCountriesFromExcel(IFormFile formFile);
+
+    /// <summary>
+    /// method responsible to delete country
+    /// </summary>
+    /// <param name="countryId"></param>
+    /// <returns></returns>
+    Task<bool> DeleteCountryAsync(Guid countryId);
 }

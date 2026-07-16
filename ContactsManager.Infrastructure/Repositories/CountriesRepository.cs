@@ -48,4 +48,11 @@ public sealed class CountriesRepository: ICountriesRepository
 
         return country;
     }
+
+    public async Task<bool> DeleteCountry(Guid? countryId)
+    {
+        int rowsAffected = await database.Countries.Where(country => country.CountryId == countryId).ExecuteDeleteAsync();
+
+        return rowsAffected > 0 ? true : false;
+    }
 }

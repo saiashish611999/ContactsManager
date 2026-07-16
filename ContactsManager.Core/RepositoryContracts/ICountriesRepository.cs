@@ -34,4 +34,11 @@ public interface ICountriesRepository
     /// <param name="countryId"></param>
     /// <returns></returns>
     Task<Country?> GetCountryByCountryIdAsync(Guid? countryId);
+
+    /// <summary>
+    /// method responsible to delete country
+    /// </summary>
+    /// <param name="countryId"></param>
+    /// <returns></returns>
+    Task<bool> DeleteCountry(Guid? countryId);
 }
