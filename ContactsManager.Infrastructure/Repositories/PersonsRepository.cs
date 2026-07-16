@@ -27,6 +27,8 @@ public sealed class PersonsRepository : IPersonsRepository
             .Where(person => person.PersonId == personId)
             .ExecuteDeleteAsync();
 
+        await database.SaveChangesAsync();
+
         return rows > 0;
     }
 
