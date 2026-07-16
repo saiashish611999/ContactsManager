@@ -4,6 +4,8 @@ using ContactsManager.Core.Enums;
 using ContactsManager.Core.ServiceContracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Rotativa.AspNetCore;
+using Rotativa.AspNetCore.Options;
 using System.ComponentModel;
 using System.Threading.Tasks;
 
@@ -24,6 +26,7 @@ public sealed class PersonsController : Controller
         this.countriesService = countriesService;
     }
 
+    #region PrivateMethods
     private async Task LoadCountries()
     {
         List<CountryResponse> countries = await countriesService.GetAllCountriesAsync();
@@ -37,6 +40,10 @@ public sealed class PersonsController : Controller
             };
         });
     }
+
+    #endregion
+
+    #region Index
 
     [Route("[action]")]
     [Route("/")]
@@ -74,6 +81,7 @@ public sealed class PersonsController : Controller
 
         return View("Index", sortedPersons);
     }
+    #endregion
 
     #region Create
     [HttpGet]
@@ -175,6 +183,60 @@ public sealed class PersonsController : Controller
         await personsService.DeletePersonAsync(personId);
 
         return RedirectToAction("Index", "Persons");
+    }
+    #endregion
+
+    #region GetPersonsPdf
+    [Route("[action]")]
+    [HttpGet]
+    public async Task<IActionResult> GetPersonsPdf()
+    {
+        List<PersonResponse> allPersons = await personsService.GetAllPersonsAsync();
+
+        return new ViewAsPdf("PersonsPDF", allPersons, ViewData)
+        {
+            PageMargins = new Margins()
+            {
+                Top = 20,
+                Right = 20,
+                Left = 20,
+                Bottom = 20
+            },
+            PageOrientation = Orientation.Landscape
+        };
+    }
+    #endregion
+
+    #region GetPersonsCsv
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<IActionResult> GetPersonsCsv()
+    {
+        MemoryStream memoryStream = await personsService.GetPersonsCsv();
+
+        return File(memoryStream, "application/octet-stream", "persons.csv");
+    }
+    #endregion
+
+    #region GetPersonsCsvAdvanced
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<IActionResult> GetPersonsCsvAdvanced()
+    {
+        MemoryStream memoryStream = await personsService.GetPersonsCsvAdvanced();
+
+        return File(memoryStream, "application/octet-stream", "persons-advanced.csv");
+    }
+    #endregion
+
+    #region GetPersonsExcel
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<IActionResult> GetPersonsExcel()
+    {
+        MemoryStream memoryStream = await personsService.GetPersonsExcel();
+
+        return File(memoryStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "persons.xlsx");
     }
     #endregion
 }

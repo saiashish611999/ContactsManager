@@ -6,6 +6,7 @@ using ContactsManager.Infrastructure.Repositories;
 using ContactsManager.UI.Extensions;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using Rotativa.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,8 @@ app.UseStaticFiles();
 if (!app.Environment.IsEnvironment("Test"))
 {
     ExcelPackage.License.SetNonCommercialPersonal(Guid.NewGuid().ToString());
+
+    RotativaConfiguration.Setup(app.Environment.WebRootPath, "exe/rotativa");
 }
 await app.InitializeDatabaseAsync();
 
