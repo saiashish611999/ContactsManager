@@ -3,7 +3,6 @@ using ContactsManager.Core.DataTranferObjects.CountryDtos;
 using ContactsManager.Core.DataTranferObjects.PersonDtos;
 using ContactsManager.Core.Enums;
 using ContactsManager.Core.ServiceContracts;
-using ContactsManager.Infrastructure.Configurations;
 using ContactsManager.UI.Controllers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
