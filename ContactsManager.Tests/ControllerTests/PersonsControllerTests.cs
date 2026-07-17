@@ -3,6 +3,7 @@ using ContactsManager.Core.DataTranferObjects.CountryDtos;
 using ContactsManager.Core.DataTranferObjects.PersonDtos;
 using ContactsManager.Core.Enums;
 using ContactsManager.Core.ServiceContracts;
+using ContactsManager.Infrastructure.Configurations;
 using ContactsManager.UI.Controllers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
@@ -161,6 +162,163 @@ public sealed class PersonsControllerTests
         personsServiceMock.Verify(method => method.AddPersonAsync(It.IsAny<PersonAddRequest?>()), Times.Once);
 
         countriesServiceMock.VerifyNoOtherCalls();
+
+        personsServiceMock.VerifyNoOtherCalls();
+    }
+    #endregion
+
+    #region Update
+    [Fact]
+    public async Task Update_Get_ReturnRedirectToActionIfPersonIsNull()
+    {
+        personsServiceMock.Setup(method => method.GetPersonByPersonIdAsync(It.IsAny<Guid?>()))
+            .ReturnsAsync(null as PersonResponse);
+
+        PersonsController personsController = new PersonsController(personsService, countriesService);
+
+        IActionResult actionResult = await personsController.Update(Guid.NewGuid());
+
+        RedirectToActionResult result = Assert.IsType<RedirectToActionResult>(actionResult);
+
+        result.ActionName.Should().Be("Index");
+
+        result.ControllerName.Should().Be("Persons");
+
+        personsServiceMock.Verify(method => method.GetPersonByPersonIdAsync(It.IsAny<Guid?>()), Times.Once);
+
+        personsServiceMock.VerifyNoOtherCalls();
+
+        countriesServiceMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Update_Get_ReturnViewIfPersonExists()
+    {
+        List<CountryResponse> countriesObject = fixture.Create<List<CountryResponse>>();
+
+        PersonResponse personResponseObject = fixture.Build<PersonResponse>()
+            .With(prop => prop.Email, "ashish@gmail.com")
+            .With(prop => prop.Gender, Gender.MALE.ToString())
+            .Create();
+
+        personsServiceMock.Setup(method => method.GetPersonByPersonIdAsync(It.IsAny<Guid?>()))
+            .ReturnsAsync(personResponseObject);
+
+        countriesServiceMock.Setup(method => method.GetAllCountriesAsync())
+            .ReturnsAsync(countriesObject);
+
+        PersonsController personsController = new PersonsController(personsService, countriesService);
+
+        IActionResult actionResult = await personsController.Update(Guid.NewGuid());
+
+        ViewResult result = Assert.IsType<ViewResult>(actionResult);
+
+        result.ViewName.Should().Be("Update");
+
+        result.ViewData.Model.Should().BeEquivalentTo(personResponseObject.ToUpdateRequest());
+
+        result.ViewData.Model.Should().BeAssignableTo<PersonUpdateRequest>();
+
+        personsServiceMock.Verify(method => method.GetPersonByPersonIdAsync(It.IsAny<Guid?>()), Times.Once);
+
+        countriesServiceMock.Verify(method => method.GetAllCountriesAsync(), Times.Once);
+
+        personsServiceMock.VerifyNoOtherCalls();
+
+        countriesServiceMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Update_Post_ReturnsViewIfModelStateIsInvalid()
+    {
+        List<CountryResponse> countriesObject = fixture.Create<List<CountryResponse>>();
+
+        PersonUpdateRequest updateRequestObject = fixture.Build<PersonUpdateRequest>()
+            .With(prop => prop.Email, "ashish@gmail.com")
+            .With(prop => prop.Gender, Gender.MALE)
+            .Create();
+
+        countriesServiceMock.Setup(method => method.GetAllCountriesAsync())
+            .ReturnsAsync(countriesObject);
+
+        PersonsController personsController = new PersonsController(personsService, countriesService);
+
+        personsController.ModelState.AddModelError("PersonName", "invalid data");
+
+        IActionResult actionResult = await personsController.Update(Guid.NewGuid(), updateRequestObject);
+
+        ViewResult result = Assert.IsType<ViewResult>(actionResult);
+
+        result.ViewName.Should().Be("Update");
+
+        result.ViewData.Model.Should().BeEquivalentTo(updateRequestObject);
+
+        result.ViewData.Model.Should().BeAssignableTo<PersonUpdateRequest>();
+
+        personsServiceMock.VerifyNoOtherCalls();
+
+        countriesServiceMock.Verify(method => method.GetAllCountriesAsync(), Times.Once);
+
+        countriesServiceMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Update_Post_ReturnsRedirectToActionIfPersonIsNull()
+    {
+        PersonUpdateRequest updateRequestObject = fixture.Build<PersonUpdateRequest>()
+           .With(prop => prop.Email, "ashish@gmail.com")
+           .With(prop => prop.Gender, Gender.MALE)
+           .Create();
+
+        personsServiceMock.Setup(method => method.GetPersonByPersonIdAsync(It.IsAny<Guid?>()))
+            .ReturnsAsync(null as PersonResponse);
+
+        PersonsController personsController = new PersonsController(personsService, countriesService);
+
+        IActionResult actionResult = await personsController.Update(Guid.NewGuid(), updateRequestObject);
+
+        RedirectToActionResult result = Assert.IsType<RedirectToActionResult>(actionResult);
+
+        result.ActionName.Should().Be("Index");
+
+        result.ControllerName.Should().Be("Persons");
+
+        countriesServiceMock.VerifyNoOtherCalls();
+
+        personsServiceMock.Verify(method => method.GetPersonByPersonIdAsync(It.IsAny<Guid?>()), Times.Once);
+
+        personsServiceMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Update_Post_ReturnsRedirectToActionIfPersonExists()
+    {
+        PersonResponse personResponseObject = fixture.Build<PersonResponse>()
+           .With(prop => prop.Email, "ashish@gmail.com")
+           .With(prop => prop.Gender, Gender.MALE.ToString())
+           .Create();
+
+        personsServiceMock.Setup(method => method.GetPersonByPersonIdAsync(It.IsAny<Guid?>()))
+           .ReturnsAsync(personResponseObject);
+
+        personsServiceMock.Setup(method => method.UpdatePersonAsync(It.IsAny<PersonUpdateRequest>()))
+            .ReturnsAsync(personResponseObject);
+
+        PersonsController personsController = new PersonsController(personsService, countriesService);
+
+        IActionResult actionResult = await personsController.Update(Guid.NewGuid(), personResponseObject.ToUpdateRequest());
+
+        RedirectToActionResult result = Assert.IsType<RedirectToActionResult>(actionResult);
+
+        result.ActionName.Should().Be("Index");
+
+        result.ControllerName.Should().Be("Persons");
+
+        countriesServiceMock.VerifyNoOtherCalls();
+
+        personsServiceMock.Verify(method => method.GetPersonByPersonIdAsync(It.IsAny<Guid?>()), Times.Once);
+
+        personsServiceMock.Verify(method => method.UpdatePersonAsync(It.IsAny<PersonUpdateRequest>()), Times.Once);
 
         personsServiceMock.VerifyNoOtherCalls();
     }

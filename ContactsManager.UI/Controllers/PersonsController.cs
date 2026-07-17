@@ -137,7 +137,7 @@ public sealed class PersonsController : Controller
         {
             await LoadCountries();
 
-            return View("Update");
+            return View("Update", personUpdateRequest);
         }
 
         PersonResponse? person = await personsService.GetPersonByPersonIdAsync(personId);
