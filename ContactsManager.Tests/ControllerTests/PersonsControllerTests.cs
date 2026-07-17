@@ -323,4 +323,108 @@ public sealed class PersonsControllerTests
         personsServiceMock.VerifyNoOtherCalls();
     }
     #endregion
+
+    #region Delete
+    [Fact]
+    public async Task Delete_Get_ReturnsRedirectToActionIfNoPersonExists()
+    {
+        personsServiceMock.Setup(method => method.GetPersonByPersonIdAsync(It.IsAny<Guid?>()))
+            .ReturnsAsync(null as PersonResponse);
+
+        PersonsController personsController = new PersonsController(personsService, countriesService);
+
+        IActionResult actionResult = await personsController.Delete(Guid.NewGuid());
+
+        RedirectToActionResult result = Assert.IsType<RedirectToActionResult>(actionResult);
+
+        result.ActionName.Should().Be("Index");
+
+        result.ControllerName.Should().Be("Persons");
+
+        personsServiceMock.Verify(method => method.GetPersonByPersonIdAsync(It.IsAny<Guid?>()), Times.Once);
+
+        personsServiceMock.VerifyNoOtherCalls();
+
+        countriesServiceMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Delete_Get_ReturnsRedirectToActionIfPersonExists()
+    {
+        PersonResponse personResponseObject = fixture.Build<PersonResponse>()
+           .With(prop => prop.Email, "ashish@gmail.com")
+           .With(prop => prop.Gender, Gender.MALE.ToString())
+           .Create();
+
+        personsServiceMock.Setup(method => method.GetPersonByPersonIdAsync(It.IsAny<Guid?>()))
+            .ReturnsAsync(personResponseObject);
+
+        PersonsController personsController = new PersonsController(personsService, countriesService);
+
+        IActionResult actionResult = await personsController.Delete(Guid.NewGuid());
+
+        ViewResult result = Assert.IsType<ViewResult>(actionResult);
+
+        result.ViewName.Should().Be("Delete");
+
+        result.ViewData.Model.Should().BeEquivalentTo(personResponseObject.ToUpdateRequest());
+
+        result.ViewData.Model.Should().BeAssignableTo<PersonUpdateRequest>();
+
+        personsServiceMock.Verify(method => method.GetPersonByPersonIdAsync(It.IsAny<Guid?>()), Times.Once);
+
+        personsServiceMock.VerifyNoOtherCalls();
+
+        countriesServiceMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Delete_Post_ReturnsRedirectToActionIfNoPersonExists()
+    {
+        personsServiceMock.Setup(method => method.GetPersonByPersonIdAsync(It.IsAny<Guid?>()))
+            .ReturnsAsync(null as PersonResponse);
+
+        PersonsController personsController = new PersonsController(personsService, countriesService);
+
+        IActionResult actionResult = await personsController.DeleteConfirmed(Guid.NewGuid());
+
+        RedirectToActionResult result = Assert.IsType<RedirectToActionResult>(actionResult);
+
+        result.ActionName.Should().Be("Index");
+
+        result.ControllerName.Should().Be("Persons");
+
+        personsServiceMock.Verify(method => method.GetPersonByPersonIdAsync(It.IsAny<Guid?>()), Times.Once);
+
+        personsServiceMock.VerifyNoOtherCalls();
+
+        countriesServiceMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Delete_Post_ReturnsRedirectToActionIfPersonExists()
+    {
+        personsServiceMock.Setup(method => method.GetPersonByPersonIdAsync(It.IsAny<Guid?>()))
+            .ReturnsAsync(null as PersonResponse);
+
+        personsServiceMock.Setup(method => method.DeletePersonAsync(It.IsAny<Guid?>()))
+            .ReturnsAsync(true);
+
+        PersonsController personsController = new PersonsController(personsService, countriesService);
+
+        IActionResult actionResult = await personsController.DeleteConfirmed(Guid.NewGuid());
+
+        RedirectToActionResult result = Assert.IsType<RedirectToActionResult>(actionResult);
+
+        result.ActionName.Should().Be("Index");
+
+        result.ControllerName.Should().Be("Persons");
+
+        personsServiceMock.Verify(method => method.GetPersonByPersonIdAsync(It.IsAny<Guid?>()), Times.Once);
+
+        personsServiceMock.VerifyNoOtherCalls();
+
+        countriesServiceMock.VerifyNoOtherCalls();
+    }
+    #endregion
 }
