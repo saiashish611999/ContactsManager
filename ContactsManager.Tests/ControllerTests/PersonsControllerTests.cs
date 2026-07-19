@@ -7,6 +7,7 @@ using ContactsManager.UI.Controllers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Rotativa.AspNetCore;
 
 namespace ContactsManager.Tests.ControllerTests;
 public sealed class PersonsControllerTests
@@ -424,6 +425,36 @@ public sealed class PersonsControllerTests
         personsServiceMock.VerifyNoOtherCalls();
 
         countriesServiceMock.VerifyNoOtherCalls();
+    }
+    #endregion
+
+    #region GetPersonsPdf
+    [Fact]
+    public async Task GetPersonsPdf_Get_ReturnsViewAsPdf()
+    {
+        List<PersonResponse> personsObject = fixture.Create<List<PersonResponse>>();
+
+        personsServiceMock.Setup(method => method.GetAllPersonsAsync())
+            .ReturnsAsync(personsObject);
+
+        PersonsController personsController = new PersonsController(personsService, countriesService);
+
+        IActionResult actionResult =  await personsController.GetPersonsPdf();
+
+        ViewAsPdf result = Assert.IsType<ViewAsPdf>(actionResult);
+
+        result.ViewName.Should().Be("PersonsPDF");
+
+        result.ViewData.Model.Should().BeAssignableTo<List<PersonResponse>>();
+
+        result.ViewData.Model.Should().BeEquivalentTo(personsObject);
+
+        personsServiceMock.Verify(method => method.GetAllPersonsAsync(), Times.Once);
+
+        personsServiceMock.VerifyNoOtherCalls();
+
+        countriesServiceMock.VerifyNoOtherCalls();
+
     }
     #endregion
 }
