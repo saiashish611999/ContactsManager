@@ -10,6 +10,24 @@ using Rotativa.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpLogging(options =>
+{
+    options.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.All;
+
+    options.RequestBodyLogLimit = 4096;
+
+    options.ResponseBodyLogLimit = 4096;
+});
+
+builder.Logging.ClearProviders();
+
+if (OperatingSystem.IsWindows())
+{
+    builder.Logging.AddEventLog();
+
+    builder.Logging.AddConsole();
+}
+
 builder.Services.AddControllersWithViews();
 
 string? connectionString = builder.Configuration.GetConnectionString("Database");
@@ -30,6 +48,8 @@ builder.Services.AddScoped<ICountriesRepository, CountriesRepository>();
 builder.Services.AddScoped<IPersonsRepository, PersonsRepository>();
 
 var app = builder.Build();
+
+app.UseHttpLogging();
 
 app.UseStaticFiles();
 

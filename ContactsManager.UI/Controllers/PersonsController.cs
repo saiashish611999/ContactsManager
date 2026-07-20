@@ -19,16 +19,27 @@ public sealed class PersonsController : Controller
 
     private readonly ICountriesService countriesService;
 
-    public PersonsController(IPersonsService personsService, ICountriesService countriesService)
+    private readonly ILogger<PersonsController> logger;
+
+    private const string ControllerName = nameof(PersonsController);
+
+    public PersonsController(
+        IPersonsService personsService, 
+        ICountriesService countriesService,
+        ILogger<PersonsController> logger)
     {
         this.personsService = personsService;
 
         this.countriesService = countriesService;
+
+        this.logger = logger;
     }
 
     #region PrivateMethods
     private async Task LoadCountries()
     {
+        logger.LogInformation("reached {methodName} of persons controller", nameof(LoadCountries));
+
         List<CountryResponse> countries = await countriesService.GetAllCountriesAsync();
 
         ViewBag.Countries = countries.Select(country =>
@@ -54,6 +65,8 @@ public sealed class PersonsController : Controller
         SortOrder sortOrder = SortOrder.ASCENDING,
         string? sortBy = nameof(PersonResponse))
     {
+        logger.LogInformation("reached {methodName} of {controllerName}", nameof(Index), ControllerName);
+
         Dictionary<string, string> searchByList = new Dictionary<string, string>()
         {
             { "Name", nameof(PersonResponse.PersonName)},
@@ -88,6 +101,8 @@ public sealed class PersonsController : Controller
     [Route("[action]")]
     public async Task<IActionResult> Create()
     {
+        logger.LogInformation("reached {methodName} of {controllerName}", nameof(Create), ControllerName);
+
         await LoadCountries();
 
         return View("Create");
@@ -97,6 +112,8 @@ public sealed class PersonsController : Controller
     [Route("[action]")]
     public async Task<IActionResult> Create(PersonAddRequest? personAddRequest)
     {
+        logger.LogInformation("reached {methodName} of {controllerName}", nameof(Index), ControllerName);
+
         if (personAddRequest is null || !ModelState.IsValid)
         {
             await LoadCountries();
@@ -115,6 +132,8 @@ public sealed class PersonsController : Controller
     [Route("[action]/{personId:guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid? personId)
     {
+        logger.LogInformation("reached {methodName} of {controllerName}", nameof(Update), ControllerName);
+
         PersonResponse? person = await personsService.GetPersonByPersonIdAsync(personId);
 
         if (person is null)
@@ -133,6 +152,8 @@ public sealed class PersonsController : Controller
     [Route("[action]/{personId:guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid? personId, [FromForm] PersonUpdateRequest? personUpdateRequest)
     {
+        logger.LogInformation("reached {methodName} of {controllerName}", nameof(Update), ControllerName);
+
         if (personUpdateRequest is null || !ModelState.IsValid)
         {
             await LoadCountries();
@@ -158,6 +179,8 @@ public sealed class PersonsController : Controller
     [Route("[action]/{personId:guid}")]
     public async Task<IActionResult> Delete([FromRoute] Guid personId)
     {
+        logger.LogInformation("reached {methodName} of {controllerName}", nameof(Delete), ControllerName);
+
         PersonResponse? person = await personsService.GetPersonByPersonIdAsync(personId);
 
         if (person is null)
@@ -173,6 +196,8 @@ public sealed class PersonsController : Controller
     public async Task<IActionResult> DeleteConfirmed(
         [FromRoute] Guid personId)
     {
+        logger.LogInformation("reached {methodName} of {controllerName}", nameof(DeleteConfirmed), ControllerName);
+
         PersonResponse? person = await personsService.GetPersonByPersonIdAsync(personId);
 
         if (person is null)
@@ -191,6 +216,8 @@ public sealed class PersonsController : Controller
     [HttpGet]
     public async Task<IActionResult> GetPersonsPdf()
     {
+        logger.LogInformation("reached {methodName} of {controllerName}", nameof(GetPersonsPdf), ControllerName);
+
         List<PersonResponse> allPersons = await personsService.GetAllPersonsAsync();
 
         return new ViewAsPdf("PersonsPDF", allPersons, ViewData)
@@ -212,6 +239,8 @@ public sealed class PersonsController : Controller
     [Route("[action]")]
     public async Task<IActionResult> GetPersonsCsv()
     {
+        logger.LogInformation("reached {methodName} of {controllerName}", nameof(GetPersonsCsv), ControllerName);
+
         MemoryStream memoryStream = await personsService.GetPersonsCsv();
 
         return File(memoryStream, "application/octet-stream", "persons.csv");
@@ -223,6 +252,8 @@ public sealed class PersonsController : Controller
     [Route("[action]")]
     public async Task<IActionResult> GetPersonsCsvAdvanced()
     {
+        logger.LogInformation("reached {methodName} of {controllerName}", nameof(GetPersonsCsvAdvanced), ControllerName);
+
         MemoryStream memoryStream = await personsService.GetPersonsCsvAdvanced();
 
         return File(memoryStream, "application/octet-stream", "persons-advanced.csv");
@@ -234,6 +265,8 @@ public sealed class PersonsController : Controller
     [Route("[action]")]
     public async Task<IActionResult> GetPersonsExcel()
     {
+        logger.LogInformation("reached {methodName} of {controllerName}", nameof(GetPersonsExcel), ControllerName);
+
         MemoryStream memoryStream = await personsService.GetPersonsExcel();
 
         return File(memoryStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "persons.xlsx");

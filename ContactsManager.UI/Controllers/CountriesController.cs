@@ -9,17 +9,25 @@ namespace ContactsManager.UI.Controllers;
 [Controller]  
 public sealed class CountriesController: Controller
 {
+    private readonly ILogger<CountriesController> logger;
+
     private readonly ICountriesService countriesService;
 
-    public CountriesController(ICountriesService countriesService)
+    public CountriesController(
+        ICountriesService countriesService,
+        ILogger<CountriesController> logger)
     {
         this.countriesService = countriesService;
+
+        this.logger = logger;
     }
 
     #region Index
     [Route("[action]")]
     public async Task<IActionResult> Index()
     {
+        logger.LogInformation("reached countries controller Index action method");
+
         List<CountryResponse> allCountries = await countriesService.GetAllCountriesAsync();
 
         return View("Index", allCountries);
@@ -31,6 +39,8 @@ public sealed class CountriesController: Controller
     [HttpGet]
     public IActionResult Create()
     {
+        logger.LogInformation("reched countries controller create GET action method");
+
         return View("Create");
     }
 
@@ -38,6 +48,8 @@ public sealed class CountriesController: Controller
     [HttpPost]
     public async Task<IActionResult> Create([FromForm] CountryAddRequest countryAddRequest)
     {
+        logger.LogInformation("reached countries controller createPOST action method");
+
         if (!ModelState.IsValid)
         {
             return View("Create", countryAddRequest);
@@ -54,6 +66,8 @@ public sealed class CountriesController: Controller
     [HttpGet]
     public IActionResult UploadCountries()
     {
+        logger.LogInformation("reached countries controller upload GET action method");
+
         return View("Upload");
     }
 
@@ -61,6 +75,8 @@ public sealed class CountriesController: Controller
     [HttpPost]
     public async Task<IActionResult> UploadCountries([FromForm] IFormFile excelFile)
     {
+        logger.LogInformation("reached countries controller upload POST action method");
+
         if (excelFile is null || excelFile.Length == 0)
         {
             ViewBag.ErrorMessage = "no content in uploaded file";
@@ -86,6 +102,8 @@ public sealed class CountriesController: Controller
     [HttpGet]
     public async Task<IActionResult> Delete(Guid countryId)
     {
+        logger.LogInformation("reached countries controller Delete GET action method");
+
         CountryResponse? country = await countriesService.GetCountryByCountryIdAsync(countryId);
 
         if (country is null)
@@ -100,6 +118,8 @@ public sealed class CountriesController: Controller
     [HttpPost]
     public async Task<IActionResult> DeleteConfirmed([FromRoute] Guid countryId)
     {
+        logger.LogInformation("reached countries controller Delete POST action method");
+
         CountryResponse? existingCountry = await countriesService.GetCountryByCountryIdAsync(countryId);
 
         if (existingCountry is null)

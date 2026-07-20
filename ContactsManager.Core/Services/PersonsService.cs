@@ -10,19 +10,30 @@ using System.Globalization;
 using CsvHelper.Configuration;
 using OfficeOpenXml;
 using System.Drawing;
+using Microsoft.Extensions.Logging;
 
 namespace ContactsManager.Core.Services;
 public sealed class PersonsService : IPersonsService
 {
     private readonly IPersonsRepository personsRepository;
 
-    public PersonsService(IPersonsRepository personsRepository)
+    private readonly ILogger<PersonsService> logger;
+
+    private const string ServiceName = nameof(PersonsService);
+
+    public PersonsService(
+        IPersonsRepository personsRepository,
+        ILogger<PersonsService> logger)
     {
         this.personsRepository = personsRepository;
+
+        this.logger = logger;
     }
 
     public async Task<PersonResponse> AddPersonAsync(PersonAddRequest? personAddRequest)
     {
+        logger.LogInformation("reached {methodName} of {serviceName}", nameof(AddPersonAsync), ServiceName);
+
         ArgumentNullException.ThrowIfNull(personAddRequest);
 
         ValidationHelper.ValidateRequest(personAddRequest);
@@ -36,6 +47,8 @@ public sealed class PersonsService : IPersonsService
 
     public async Task<bool> DeletePersonAsync(Guid? personID)
     {
+        logger.LogInformation("reached {methodName} of {serviceName}", nameof(DeletePersonAsync), ServiceName);
+
         ArgumentNullException.ThrowIfNull(personID);
 
         Person? person = await personsRepository.GetPersonByPersonIdAsync(personID);
@@ -52,6 +65,8 @@ public sealed class PersonsService : IPersonsService
 
     public async Task<List<PersonResponse>> GetAllPersonsAsync()
     {
+        logger.LogInformation("reached {methodName} of {serviceName}", nameof(GetAllPersonsAsync), ServiceName);
+
         List<Person> persons = await personsRepository.GetAllPersonsAsync();
 
         List<PersonResponse> repsonse = persons.Select(p => p.ToResponse()).ToList();
@@ -61,6 +76,8 @@ public sealed class PersonsService : IPersonsService
 
     public async Task<List<PersonResponse>> GetFilteredPersonsAsync(string? searchBy, string? searchString)
     {
+        logger.LogInformation("reached {methodName} of {serviceName}", nameof(GetFilteredPersonsAsync), ServiceName);
+
         List<PersonResponse> allPersons = await GetAllPersonsAsync();
 
         if (string.IsNullOrEmpty(searchBy) || string.IsNullOrEmpty(searchString))
@@ -98,6 +115,8 @@ public sealed class PersonsService : IPersonsService
 
     public async Task<PersonResponse?> GetPersonByPersonIdAsync(Guid? personId)
     {
+        logger.LogInformation("reached {methodName} of {serviceName}", nameof(GetPersonByPersonIdAsync), ServiceName);
+
         ArgumentNullException.ThrowIfNull(personId);
 
         Person? person = await personsRepository.GetPersonByPersonIdAsync(personId);
@@ -114,6 +133,8 @@ public sealed class PersonsService : IPersonsService
 
     public async Task<MemoryStream> GetPersonsCsv()
     {
+        logger.LogInformation("reached {methodName} of {serviceName}", nameof(GetPersonsCsv), ServiceName);
+
         MemoryStream memoryStream = new MemoryStream();
 
         StreamWriter streamWriter = new StreamWriter(memoryStream);
@@ -137,6 +158,8 @@ public sealed class PersonsService : IPersonsService
 
     public async Task<MemoryStream> GetPersonsCsvAdvanced()
     {
+        logger.LogInformation("reached {methodName} of {serviceName}", nameof(GetPersonsCsvAdvanced), ServiceName);
+
         MemoryStream memoryStream = new MemoryStream();
 
         StreamWriter streamWriter = new StreamWriter(memoryStream);
@@ -175,6 +198,8 @@ public sealed class PersonsService : IPersonsService
 
     public async Task<MemoryStream> GetPersonsExcel()
     {
+        logger.LogInformation("reached {methodName} of {serviceName}", nameof(GetPersonsExcel), ServiceName);
+
         MemoryStream memoryStream = new MemoryStream();
 
         using (ExcelPackage package = new ExcelPackage(memoryStream))
@@ -224,6 +249,8 @@ public sealed class PersonsService : IPersonsService
     public List<PersonResponse> GetSortedPersonsAsync(List<PersonResponse> allPersons, string? sortBy, SortOrder sortOrder)
     {
 
+        logger.LogInformation("reached {methodName} of {serviceName}", nameof(GetSortedPersonsAsync), ServiceName);
+
         if (string.IsNullOrEmpty(sortBy))
         {
             return allPersons;
@@ -245,6 +272,7 @@ public sealed class PersonsService : IPersonsService
 
     public async Task<PersonResponse> UpdatePersonAsync(PersonUpdateRequest? personUpdateRequest)
     {
+        logger.LogInformation("reached {methodName} of {serviceName}", nameof(UpdatePersonAsync), ServiceName);
 
         ArgumentNullException.ThrowIfNull(personUpdateRequest);
 
