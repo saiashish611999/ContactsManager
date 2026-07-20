@@ -14,7 +14,7 @@ public sealed class CountriesControllerIntegrationTests : IClassFixture<CustomWe
     }
 
     #region Index
-    [Fact]
+    [Fact] 
     public async Task Index_ToReturnView()
     {
         // act
