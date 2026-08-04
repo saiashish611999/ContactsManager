@@ -1,6 +1,6 @@
 ﻿using AutoFixture;
 using ContactsManager.Core.DataTransferObjects.CountryDtos;
-using ContactsManager.Core.Entities;
+using ContactsManager.Core.Domain.Entities;
 using ContactsManager.Core.RepositoryContracts;
 using ContactsManager.Core.ServiceContracts;
 using ContactsManager.Core.Services;
@@ -87,7 +87,7 @@ public class CountriesServiceTests
     {
         CountryAddRequest countryAddRequestObject = fixture.Create<CountryAddRequest>();
 
-        Country countryObject = fixture.Create<Country>();
+        Country countryObject = fixture.Build<Country>().Without(p => p.Persons).Create();
 
         countriesRepositoryMock.Setup(method => method.IsCountryExists(It.IsAny<string?>()))
             .ReturnsAsync(false);
@@ -132,7 +132,9 @@ public class CountriesServiceTests
     [Fact]
     public async Task GetAllCountries_ShouldReturnListOfCountries_WhenCountriesExists()
     {
-        List<Country> countriesList = fixture.Create<List<Country>>();
+        List<Country> countriesList = fixture.Build<Country>().Without(prop => prop.Persons)
+            .CreateMany(5)
+            .ToList();
 
         countriesRepositoryMock.Setup(method => method.GetAllCountries())
             .ReturnsAsync(countriesList);
@@ -184,7 +186,7 @@ public class CountriesServiceTests
     [Fact]
     public async Task GetCountryByCountryId_ShouldReturnCountryResponse_WhenValidCountryId()
     {
-        Country countryObject = fixture.Create<Country>();
+        Country countryObject = fixture.Build<Country>().Without(p => p.Persons).Create();
 
         countriesRepositoryMock.Setup(method => method.GetCountryByCountryId(It.IsAny<Guid?>()))
             .ReturnsAsync(countryObject);

@@ -1,5 +1,6 @@
 ﻿using ContactsManager.Core.DataTransferObjects.CountryDtos;
-using ContactsManager.Core.Entities;
+using ContactsManager.Core.Domain.Entities;
+using ContactsManager.Core.Extensions;
 using ContactsManager.Core.Helpers;
 using ContactsManager.Core.RepositoryContracts;
 using ContactsManager.Core.ServiceContracts;
@@ -33,11 +34,7 @@ public sealed class CountriesService : ICountriesService
 
         Country addedCountry = await countriesRepository.AddCountry(country);
 
-        CountryResponse response = new CountryResponse()
-        {
-            CountryId = addedCountry.CountryId,
-            CountryName = addedCountry.CountryName
-        };
+        CountryResponse response = addedCountry.AsCountryResponse();
 
         return response;
     }
@@ -46,11 +43,7 @@ public sealed class CountriesService : ICountriesService
     {
         List<Country> countries = await countriesRepository.GetAllCountries();
 
-        List<CountryResponse> response = countries.Select(c => new CountryResponse()
-        {
-            CountryId = c.CountryId,
-            CountryName = c.CountryName
-        }).ToList();
+        List<CountryResponse> response = countries.Select(c => c.AsCountryResponse()).ToList();
 
         return response;
     }
@@ -66,11 +59,7 @@ public sealed class CountriesService : ICountriesService
             return null;
         }
 
-        CountryResponse response = new CountryResponse()
-        {
-            CountryId = country.CountryId,
-            CountryName = country.CountryName
-        };
+        CountryResponse response = country.AsCountryResponse();
 
         return response;
     }
