@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using ContactsManager.Core.DataTransferObjects.PersonDtos;
 using ContactsManager.Core.Domain.Entities;
+using ContactsManager.Core.Enums;
 using ContactsManager.Core.Extensions;
 using ContactsManager.Core.RepositoryContracts;
 using ContactsManager.Core.ServiceContracts;
@@ -262,6 +263,29 @@ public sealed class PersonsServiceTests
         filteredPersons[0].PersonName.Should().Be(persons[0].PersonName);
 
         personsRepositoryMock.Verify(method => method.GetAllPersons(), Times.Once);
+
+        personsRepositoryMock.VerifyNoOtherCalls();
+    }
+    #endregion
+
+    #region GetSortedPersons
+    [Theory]
+    [InlineData(SortOrder.ASCENDING)]
+    [InlineData(SortOrder.DESCENDING)]
+    public void GetSortedPersons_ShouldReturnPersonsInOrder_WhenSortOrder(SortOrder sortOrder)
+    {
+        List<PersonResponse> persons = fixture.Create<List<PersonResponse>>();
+
+        List<PersonResponse> personResponses = personsService.GetSortedPersons(persons, nameof(PersonResponse.PersonName), sortOrder);
+
+        if (sortOrder == SortOrder.ASCENDING)
+        {
+            personResponses.Should().BeInAscendingOrder(p => p.PersonName);
+        }
+        else
+        {
+            personResponses.Should().BeInDescendingOrder(p => p.PersonName);
+        }
 
         personsRepositoryMock.VerifyNoOtherCalls();
     }

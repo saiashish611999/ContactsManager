@@ -1,4 +1,5 @@
 ﻿using ContactsManager.Core.DataTransferObjects.PersonDtos;
+using ContactsManager.Core.Enums;
 
 namespace ContactsManager.Core.ServiceContracts;
 
@@ -33,4 +34,13 @@ public interface IPersonsService
     /// <param name="searchString"></param>
     /// <returns></returns>
     Task<List<PersonResponse>> GetFilteredPersons(string? searchBy, string? searchString);
+
+    /// <summary>
+    /// method responsible to sort the persons
+    /// </summary>
+    /// <param name="allPersons"></param>
+    /// <param name="sortBy"></param>
+    /// <param name="sortOrder"></param>
+    /// <returns></returns>
+    List<PersonResponse> GetSortedPersons(List<PersonResponse> allPersons, string? sortBy, SortOrder sortOrder);
 }

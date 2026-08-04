@@ -1,5 +1,6 @@
 ﻿using ContactsManager.Core.DataTransferObjects.PersonDtos;
 using ContactsManager.Core.Domain.Entities;
+using ContactsManager.Core.Enums;
 using ContactsManager.Core.Extensions;
 using ContactsManager.Core.Helpers;
 using ContactsManager.Core.RepositoryContracts;
@@ -104,5 +105,26 @@ public sealed class PersonsService : IPersonsService
         PersonResponse response = person.AsPersonResposne();
 
         return response;
+    }
+
+    public List<PersonResponse> GetSortedPersons(List<PersonResponse> allPersons, string? sortBy, SortOrder sortOrder)
+    {
+        if (string.IsNullOrEmpty(sortBy))
+        {
+            return allPersons;
+        }
+
+        PropertyInfo? prop = typeof(PersonResponse).GetProperty(sortBy);
+
+        if(prop is null)
+        {
+            return allPersons;
+        }
+
+        List<PersonResponse> sortedPersons = sortOrder is SortOrder.ASCENDING ?
+            allPersons.OrderBy(person => prop.GetValue(person)).ToList() :
+            allPersons.OrderByDescending(person => prop.GetValue(person)).ToList();
+
+        return sortedPersons;
     }
 }
