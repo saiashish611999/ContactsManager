@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using ContactsManager.Core.DataTransferObjects.PersonDtos;
 using ContactsManager.Core.Domain.Entities;
+using ContactsManager.Core.Extensions;
 using ContactsManager.Core.RepositoryContracts;
 using ContactsManager.Core.ServiceContracts;
 using ContactsManager.Core.Services;
@@ -211,5 +212,58 @@ public sealed class PersonsServiceTests
     }
     #endregion
 
+    #region GetFilteredPersons
+    // when null search string, it shoudl return allpersons
+    [Fact]
+    public async Task GetFilteredPersons_ShouldReturnAllPersons_WhenNullSearchString()
+    {
+        List<Person> persons = fixture.Build<List<Person>>().Create();
 
+        personsRepositoryMock.Setup(method => method.GetAllPersons())
+            .ReturnsAsync(persons);
+
+        List<PersonResponse> filteredPersons = await personsService.GetFilteredPersons(null, null);
+
+        filteredPersons.Count().Should().Be(persons.Count());
+
+        filteredPersons.Should().BeEquivalentTo(persons.Select(person => person.AsPersonResposne()));
+
+        personsRepositoryMock.Verify(method => method.GetAllPersons(), Times.Once);
+
+        personsRepositoryMock.VerifyNoOtherCalls();
+     
+    }
+
+    // when search string, it should return filtered persons
+    [Fact]
+    public async Task GetFilteredPersons_ShouldReturnFilteredPersons_WhenSearchString()
+    {
+        List<Person> persons = new List<Person>()
+    {
+        fixture.Build<Person>()
+            .With(p => p.PersonName, "Sai Ashish")
+            .Without(p => p.Country)
+            .Create(),
+
+        fixture.Build<Person>()
+            .With(p => p.PersonName, "Praveen")
+            .Without(p => p.Country)
+            .Create()
+    };
+
+        personsRepositoryMock.Setup(method => method.GetAllPersons())
+            .ReturnsAsync(persons);
+
+        List<PersonResponse> filteredPersons = await personsService
+            .GetFilteredPersons(nameof(PersonResponse.PersonName), "Sai");
+
+        filteredPersons.Count().Should().Be(1);
+
+        filteredPersons[0].PersonName.Should().Be(persons[0].PersonName);
+
+        personsRepositoryMock.Verify(method => method.GetAllPersons(), Times.Once);
+
+        personsRepositoryMock.VerifyNoOtherCalls();
+    }
+    #endregion
 }

@@ -25,4 +25,12 @@ public interface IPersonsService
     /// </summary>
     /// <returns></returns>
     Task<PersonResponse?> GetPersonByPersonId(Guid? personId);
+
+    /// <summary>
+    /// method responsible to filter the persons
+    /// </summary>
+    /// <param name="searchBy"></param>
+    /// <param name="searchString"></param>
+    /// <returns></returns>
+    Task<List<PersonResponse>> GetFilteredPersons(string? searchBy, string? searchString);
 }

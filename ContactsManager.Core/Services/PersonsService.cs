@@ -4,6 +4,7 @@ using ContactsManager.Core.Extensions;
 using ContactsManager.Core.Helpers;
 using ContactsManager.Core.RepositoryContracts;
 using ContactsManager.Core.ServiceContracts;
+using System.Reflection;
 
 namespace ContactsManager.Core.Services;
 public sealed class PersonsService : IPersonsService
@@ -51,6 +52,42 @@ public sealed class PersonsService : IPersonsService
         List<PersonResponse> response = persons.Select(person => person.AsPersonResposne()).ToList();
 
         return response;
+    }
+
+    public async Task<List<PersonResponse>> GetFilteredPersons(string? searchBy, string? searchString)
+    {
+        List<PersonResponse> allPersons = await GetAllPersons();
+
+        if (string.IsNullOrEmpty(searchBy) || string.IsNullOrEmpty(searchString))
+        {
+            return allPersons;
+        }
+
+        PropertyInfo? prop = typeof(PersonResponse).GetProperty(searchBy);
+
+        if (prop is null)
+        {
+            return allPersons;
+        }
+
+        List<PersonResponse> filteredPersons = allPersons.Where(person =>
+        {
+            var value = prop.GetValue(person, null);
+
+            if (value is null)
+            {
+                return false;
+            }
+
+            if (searchBy == nameof(PersonResponse.Gender))
+            {
+                return value.ToString()!.Equals(searchString, StringComparison.OrdinalIgnoreCase);
+            }
+
+            return value.ToString()!.Contains(searchString, StringComparison.OrdinalIgnoreCase);
+        }).ToList();
+
+        return filteredPersons;
     }
 
     public async Task<PersonResponse?> GetPersonByPersonId(Guid? personId)
