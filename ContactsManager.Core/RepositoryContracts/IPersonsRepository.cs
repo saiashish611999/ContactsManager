@@ -1,4 +1,5 @@
-﻿using ContactsManager.Core.Domain.Entities;
+﻿using ContactsManager.Core.DataTransferObjects.PersonDtos;
+using ContactsManager.Core.Domain.Entities;
 
 namespace ContactsManager.Core.RepositoryContracts;
 
@@ -26,4 +27,17 @@ public interface IPersonsRepository
     /// <param name="personId"></param>
     /// <returns></returns>
     Task<Person?> GetPersonByPersonId(Guid? personId);
+
+    /// <summary>
+    /// method responsible to update the person
+    /// </summary>
+    /// <param name="personId"></param>
+    /// <returns></returns>
+    Task<Person?> GetPersonByPersonIdWithTracking(Guid? personId);
+    
+    /// <summary>
+    /// method is responsible to save the changes to database
+    /// </summary>
+    /// <returns></returns>
+    Task SaveChanges();
 }

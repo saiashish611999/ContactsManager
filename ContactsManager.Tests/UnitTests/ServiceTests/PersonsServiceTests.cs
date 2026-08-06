@@ -8,6 +8,7 @@ using ContactsManager.Core.ServiceContracts;
 using ContactsManager.Core.Services;
 using FluentAssertions;
 using Moq;
+using System.Threading.Tasks;
 
 namespace ContactsManager.Tests.UnitTests.ServiceTests;
 public sealed class PersonsServiceTests
@@ -87,7 +88,7 @@ public sealed class PersonsServiceTests
 
         response.PersonName.Should().Be(person.PersonName);
 
-        response.EmailAddress.Should().Be(person.EmailAddress); 
+        response.EmailAddress.Should().Be(person.EmailAddress);
 
         response.DateOfBirth.Should().Be(person.DateOfBirth);
 
@@ -95,8 +96,8 @@ public sealed class PersonsServiceTests
 
         response.CountryId.Should().Be(person.CountryId);
 
-        response.Address.Should().Be(person.Address);   
-        
+        response.Address.Should().Be(person.Address);
+
         response.ReceivesNewsLetters.Should().Be(person.ReceivesNewsLetters);
 
         personsRepositoryMock.Verify(method => method.AddPerson(It.IsAny<Person>()), Times.Once);
@@ -232,7 +233,7 @@ public sealed class PersonsServiceTests
         personsRepositoryMock.Verify(method => method.GetAllPersons(), Times.Once);
 
         personsRepositoryMock.VerifyNoOtherCalls();
-     
+
     }
 
     // when search string, it should return filtered persons
@@ -290,4 +291,93 @@ public sealed class PersonsServiceTests
         personsRepositoryMock.VerifyNoOtherCalls();
     }
     #endregion
+
+    #region UpdatePerson
+    [Fact]
+    public async Task UpdatePerson_ShouldThrowsArgumentNullException_IfNullUpdateRequest()
+    {
+        Func<Task> action = async () =>
+        {
+            await personsService.UpdatePerson(null);
+        };
+
+        await action.Should().ThrowAsync<ArgumentNullException>();
+
+        personsRepositoryMock.VerifyNoOtherCalls();
+    }
+
+    // when null names, throw argumen exception
+    [Theory]
+    [InlineData("ashish", null)]
+    [InlineData(null, "ashish@gmail.com")]
+    [InlineData("ashish", "ashish")]
+    public async Task UpdatePerson_ShouldThrowArgumentException_IfImproperDetails(string? personName, string? email)
+    {
+        PersonUpdateRequest personUpdateRequest = fixture.Build<PersonUpdateRequest>()
+            .With(x => x.PersonName, personName)
+            .With(x => x.EmailAddress, email)
+            .Create();
+
+        Func<Task> action = async () =>
+        {
+            await personsService.UpdatePerson(personUpdateRequest);
+        };
+
+        await action.Should().ThrowAsync<ArgumentException>();
+
+        personsRepositoryMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task UpdatePerson_ShouldThrowInvalidDataException_IfInvalidPersonId()
+    {
+        PersonUpdateRequest personUpdateRequest = fixture.Build<PersonUpdateRequest>()
+            .With(x => x.EmailAddress,"ashish@gmail.com" )
+            .Create();
+
+        personsRepositoryMock.Setup(method => method.GetPersonByPersonIdWithTracking(It.IsAny<Guid>()))
+            .ReturnsAsync(null as Person);
+
+        Func<Task> action = async () =>
+        {
+            await personsService.UpdatePerson(personUpdateRequest);
+        };
+
+        await action.Should().ThrowAsync<InvalidDataException>();
+
+        personsRepositoryMock.Verify(method => method.GetPersonByPersonIdWithTracking(It.IsAny<Guid>()), Times.Once);
+
+        personsRepositoryMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task UpdatePerson_ShouldReturnResponse_IfValidPerson()
+    {
+        PersonUpdateRequest personUpdateRequest = fixture.Build<PersonUpdateRequest>()
+            .With(x => x.EmailAddress, "ashish@gmail.com")
+            .Create();
+
+        Person person = fixture.Build<Person>()
+            .Without(p => p.Country)
+            .Create();
+
+        personsRepositoryMock.Setup(method => method.GetPersonByPersonIdWithTracking(It.IsAny<Guid>()))
+            .ReturnsAsync(person);
+
+        personsRepositoryMock.Setup(method => method.SaveChanges()).Verifiable();
+
+        PersonResponse personResponse = await personsService.UpdatePerson(personUpdateRequest);
+
+        personResponse.PersonId.Should().Be(person.PersonId);
+
+        personsRepositoryMock.Verify(method => method.GetPersonByPersonIdWithTracking(It.IsAny<Guid>()), Times.Once);
+
+        personsRepositoryMock.Verify(method => method.SaveChanges(), Times.Once);
+
+        personsRepositoryMock.VerifyNoOtherCalls();
+    }
+
+    #endregion
+
+
 }

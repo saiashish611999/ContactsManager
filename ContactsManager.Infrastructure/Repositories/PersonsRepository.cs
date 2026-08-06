@@ -42,4 +42,18 @@ public class PersonsRepository : IPersonsRepository
 
         return person;
     }
+
+    public async Task<Person?> GetPersonByPersonIdWithTracking(Guid? personId)
+    {
+        Person? person = await database.Persons
+            .Include(p => p.Country)
+            .FirstOrDefaultAsync(p => p.PersonId == personId);
+
+        return person;
+    }
+
+    public async Task SaveChanges()
+    {
+        await database.SaveChangesAsync();
+    }
 }

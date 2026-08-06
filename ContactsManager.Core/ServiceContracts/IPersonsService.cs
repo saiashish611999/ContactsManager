@@ -43,4 +43,18 @@ public interface IPersonsService
     /// <param name="sortOrder"></param>
     /// <returns></returns>
     List<PersonResponse> GetSortedPersons(List<PersonResponse> allPersons, string? sortBy, SortOrder sortOrder);
+
+    /// <summary>
+    /// method responsible to get update person
+    /// </summary>
+    /// <param name="personUpdateRequest"></param>
+    /// <returns></returns>
+    Task<PersonResponse> UpdatePerson(PersonUpdateRequest? personUpdateRequest);
+
+    /// <summary>
+    /// method responsible to delete the person based on personid
+    /// </summary>
+    /// <param name="personId"></param>
+    /// <returns></returns>
+    Task<bool> DeletePerson(Guid? personId);
 }

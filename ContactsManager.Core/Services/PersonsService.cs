@@ -41,6 +41,11 @@ public sealed class PersonsService : IPersonsService
         return resposne;
     }
 
+    public Task<bool> DeletePerson(Guid? personId)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<List<PersonResponse>> GetAllPersons()
     {
         List<Person> persons = await personsRepository.GetAllPersons();
@@ -127,4 +132,33 @@ public sealed class PersonsService : IPersonsService
 
         return sortedPersons;
     }
+
+    public async Task<PersonResponse> UpdatePerson(PersonUpdateRequest? personUpdateRequest)
+    {
+        ArgumentNullException.ThrowIfNull(personUpdateRequest);
+
+        ValidateRequest.ValidateRequestObject(personUpdateRequest);
+
+        Person? person = await personsRepository.GetPersonByPersonIdWithTracking(personUpdateRequest.PersonId);
+
+        if (person is null)
+        {
+            throw new InvalidDataException("person is null");
+        }
+
+        person.PersonName = personUpdateRequest.PersonName;
+        person.EmailAddress = personUpdateRequest.EmailAddress;
+        person.DateOfBirth = personUpdateRequest.DateOfBirth;
+        person.Address = personUpdateRequest.Address;
+        person.Gender = personUpdateRequest.Gender;
+        person.ReceivesNewsLetters = personUpdateRequest.ReceivesNewsLetters;
+        person.CountryId = personUpdateRequest.CountryId;
+
+        await personsRepository.SaveChanges();
+
+        PersonResponse response = person.AsPersonResposne();
+
+        return response;
+    }
+    
 }
