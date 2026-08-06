@@ -40,4 +40,11 @@ public interface IPersonsRepository
     /// </summary>
     /// <returns></returns>
     Task SaveChanges();
+
+    /// <summary>
+    /// method responsible to delete person
+    /// </summary>
+    /// <param name="personId"></param>
+    /// <returns></returns>
+    Task DeletePerson(Person person);
 }

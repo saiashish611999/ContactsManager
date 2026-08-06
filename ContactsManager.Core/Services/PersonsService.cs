@@ -41,9 +41,22 @@ public sealed class PersonsService : IPersonsService
         return resposne;
     }
 
-    public Task<bool> DeletePerson(Guid? personId)
+    public async Task<bool> DeletePerson(Guid? personId)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(personId);
+
+        Person? person = await personsRepository.GetPersonByPersonIdWithTracking(personId);
+
+        if (person is null)
+        {
+            return false;
+        }
+
+        await personsRepository.DeletePerson(person);
+
+        await personsRepository.SaveChanges();
+
+        return true;
     }
 
     public async Task<List<PersonResponse>> GetAllPersons()
@@ -112,7 +125,10 @@ public sealed class PersonsService : IPersonsService
         return response;
     }
 
-    public List<PersonResponse> GetSortedPersons(List<PersonResponse> allPersons, string? sortBy, SortOrder sortOrder)
+    public List<PersonResponse> GetSortedPersons(
+        List<PersonResponse> allPersons, 
+        string? sortBy, 
+        SortOrder sortOrder)
     {
         if (string.IsNullOrEmpty(sortBy))
         {

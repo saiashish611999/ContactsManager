@@ -20,6 +20,13 @@ public class PersonsRepository : IPersonsRepository
         return person;
     }
 
+    public Task DeletePerson(Person person)
+    {
+        database.Persons.Remove(person);
+
+        return Task.CompletedTask;
+    }
+
     public async Task<List<Person>> GetAllPersons()
     {
         List<Person> persons = await database

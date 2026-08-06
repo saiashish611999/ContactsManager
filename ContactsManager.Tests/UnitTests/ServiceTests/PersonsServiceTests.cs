@@ -379,5 +379,62 @@ public sealed class PersonsServiceTests
 
     #endregion
 
+    #region DeletePerson
+    [Fact]
+    public async Task DeletePerson_ShouldThrowArgumentNullException_WhenNullPersonId()
+    {
+        Func<Task> action = async () =>
+        {
+            await personsService.DeletePerson(null);
+        };
+
+        await action.Should().ThrowAsync<ArgumentNullException>();
+
+        personsRepositoryMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task DeletePerson_ShouldReturnFalse_WhenInvalidPersonId()
+    {
+        personsRepositoryMock.Setup(method => method.GetPersonByPersonIdWithTracking(It.IsAny<Guid>()))
+            .ReturnsAsync(null as Person);
+
+        bool isDeleted = await personsService.DeletePerson(Guid.NewGuid());
+
+        isDeleted.Should().BeFalse();
+
+        personsRepositoryMock.Verify(method => method.GetPersonByPersonIdWithTracking(It.IsAny<Guid>()), Times.Once);
+
+        personsRepositoryMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task DeletePerson_ShouldReturnTrue_WhenValidPersonId()
+    {
+        Person person = fixture.Build<Person>()
+            .Without(p => p.Country)
+            .Create();
+
+        personsRepositoryMock.Setup(method => method.GetPersonByPersonIdWithTracking(It.IsAny<Guid>()))
+            .ReturnsAsync(person);
+
+        personsRepositoryMock.Setup(method => method.DeletePerson(It.IsAny<Person>())).Verifiable();
+
+        personsRepositoryMock.Setup(method => method.SaveChanges()).Verifiable();
+
+        bool isDeleted = await personsService.DeletePerson(Guid.NewGuid());
+
+        isDeleted.Should().BeTrue();
+
+        personsRepositoryMock.Verify(method => method.GetPersonByPersonIdWithTracking(It.IsAny<Guid>()), Times.Once);
+
+        personsRepositoryMock.Verify(method => method.DeletePerson(It.IsAny<Person>()), Times.Once);
+
+        personsRepositoryMock.Verify(method => method.SaveChanges(), Times.Once);
+
+        personsRepositoryMock.VerifyNoOtherCalls();
+    }
+    #endregion
+
 
 }
