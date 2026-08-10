@@ -5,6 +5,8 @@ using ContactsManager.Core.Extensions;
 using ContactsManager.Core.Helpers;
 using ContactsManager.Core.RepositoryContracts;
 using ContactsManager.Core.ServiceContracts;
+using CsvHelper;
+using System.Globalization;
 using System.Reflection;
 
 namespace ContactsManager.Core.Services;
@@ -123,6 +125,29 @@ public sealed class PersonsService : IPersonsService
         PersonResponse response = person.AsPersonResposne();
 
         return response;
+    }
+
+    public async Task<MemoryStream> GetPersonsCSV()
+    {
+        MemoryStream memoryStream = new MemoryStream();
+
+        StreamWriter streamWriter = new StreamWriter(memoryStream);
+
+        CsvWriter csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture, leaveOpen: true);
+
+        csvWriter.WriteHeader<PersonResponse>();
+
+        await csvWriter.NextRecordAsync();
+
+        List<PersonResponse> allPersons = await GetAllPersons();
+
+        await csvWriter.WriteRecordsAsync(allPersons);
+
+        await csvWriter.FlushAsync();
+
+        memoryStream.Position = 0;
+
+        return memoryStream;
     }
 
     public List<PersonResponse> GetSortedPersons(

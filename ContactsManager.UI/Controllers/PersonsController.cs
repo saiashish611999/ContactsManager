@@ -221,4 +221,15 @@ public sealed class PersonsController: Controller
         };
     }
     #endregion
+
+    #region PersonsCSV
+    [Route("[action]")]
+    [HttpGet]
+    public async Task<IActionResult> PersonsCSV()
+    {
+        MemoryStream memoryStream = await personsService.GetPersonsCSV();
+
+        return File(memoryStream, "application/octet-stream", "persons.csv");
+    }
+    #endregion
 }
