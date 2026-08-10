@@ -7,6 +7,8 @@ using ContactsManager.Core.RepositoryContracts;
 using ContactsManager.Core.ServiceContracts;
 using CsvHelper;
 using CsvHelper.Configuration;
+using OfficeOpenXml;
+using System.Drawing;
 using System.Globalization;
 using System.Reflection;
 
@@ -183,6 +185,55 @@ public sealed class PersonsService : IPersonsService
         }
 
         await csvWriter.FlushAsync();
+
+        memoryStream.Position = 0;
+
+        return memoryStream;
+    }
+
+    public async Task<MemoryStream> GetPersonsExcel()
+    {
+        MemoryStream memoryStream = new MemoryStream();
+
+        using (ExcelPackage excelPackage = new ExcelPackage(memoryStream))
+        {
+            ExcelWorksheet workSheet = excelPackage.Workbook.Worksheets.Add("Persons");
+
+            workSheet.Cells["A1"].Value = "PersonName";
+
+            workSheet.Cells["B1"].Value = "EmailAddress";
+
+            workSheet.Cells["C1"].Value = "Gender";
+
+            // styling header cells
+            using (ExcelRange headerCells = workSheet.Cells["A1:C1"])
+            {
+                headerCells.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+
+                headerCells.Style.Fill.BackgroundColor.SetColor(Color.Gray);
+
+                headerCells.Style.Font.Bold = true;
+            }
+
+            int rowNumber = 2;
+
+            List<PersonResponse> allPersons = await GetAllPersons();
+
+            foreach (PersonResponse person in allPersons)
+            {
+                workSheet.Cells[$"A{rowNumber}"].Value = person.PersonName;
+
+                workSheet.Cells[$"B{rowNumber}"].Value = person.EmailAddress;
+
+                workSheet.Cells[$"C{rowNumber}"].Value = person.Gender.ToString();
+
+                rowNumber++;
+            }
+
+            workSheet.Cells[$"A1:C{rowNumber}"].AutoFitColumns();
+
+            await excelPackage.SaveAsync();
+        }
 
         memoryStream.Position = 0;
 

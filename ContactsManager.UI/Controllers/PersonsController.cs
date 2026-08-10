@@ -243,4 +243,13 @@ public sealed class PersonsController: Controller
         return File(memoryStream, "application/octet-stream", "persons_advanced.csv");
     }
     #endregion
+
+    #region PersonsExcel
+    public async Task<IActionResult> GetPersonsExcel()
+    {
+        MemoryStream memoryStream = await personsService.GetPersonsExcel();
+
+        return File(memoryStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "persons.xlsx");
+    }
+    #endregion
 }
