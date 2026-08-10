@@ -26,4 +26,11 @@ public interface ICountriesService
     /// <param name="countryId"></param>
     /// <returns></returns>
     Task<CountryResponse?> GetCountryByCountryId(Guid? countryId);
+
+    /// <summary>
+    /// method responsible to delete country
+    /// </summary>
+    /// <param name="countryId"></param>
+    /// <returns></returns>
+    Task<bool> DeleteCountry(Guid countryId);
 }

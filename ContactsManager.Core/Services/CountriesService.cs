@@ -39,6 +39,13 @@ public sealed class CountriesService : ICountriesService
         return response;
     }
 
+    public async Task<bool> DeleteCountry(Guid countryId)
+    {
+        bool isDeleted = await countriesRepository.DeleteCountry(countryId);
+
+        return isDeleted;
+    }
+
     public async Task<List<CountryResponse>> GetAllCountries()
     {
         List<Country> countries = await countriesRepository.GetAllCountries();

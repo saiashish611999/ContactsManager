@@ -20,6 +20,14 @@ public sealed class CountriesRepository : ICountriesRepository
         return country;
     }
 
+    public async Task<bool> DeleteCountry(Guid countryId)
+    {
+        int rowsAffected = await database.Countries.Where(country => country.CountryId == countryId)
+            .ExecuteDeleteAsync();
+
+        return rowsAffected > 0;
+    }
+
     public async Task<List<Country>> GetAllCountries()
     {
         List<Country> countries = await database
