@@ -75,4 +75,37 @@ public sealed class CountriesController : Controller
         return RedirectToAction("Index", "Countries");
     }
     #endregion
+
+    #region UploadCountries
+
+    [Route("[action]")]
+    [HttpGet]
+    public IActionResult UploadCountries()
+    {
+        return View("Upload");
+    }
+
+    [Route("[action]")]
+    [HttpPost]
+    public async Task<IActionResult> UploadCountries([FromForm] IFormFile formFile)
+    {
+        if (!Path.GetExtension(formFile.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+        {
+            ViewBag.ErrorMessage = "please upload either .xlsx or .xls file";
+
+            return View("Upload");
+        }
+
+        if (formFile is null || formFile.Length == 0)
+        {
+            ViewBag.ErrorMessage = "No content in uploaded file";
+
+            return View("Upload");
+        }
+
+        await countriesService.UploadCountriesFromExcel(formFile);
+
+        return RedirectToAction("Index", "Countries");
+    }
+    #endregion
 }
