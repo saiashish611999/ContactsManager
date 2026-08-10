@@ -5,6 +5,7 @@ using ContactsManager.Infrastructure;
 using ContactsManager.Infrastructure.Repositories;
 using ContactsManager.UI.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Rotativa.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +38,12 @@ app.UseStaticFiles();
 
 // initialize database
 await app.InitializeDatabase();
+
+// rotativa configuration
+if (!app.Environment.IsEnvironment("Test"))
+{
+    RotativaConfiguration.Setup(app.Environment.WebRootPath, "exe/rotativa");
+}
 
 
 // enable routing

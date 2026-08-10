@@ -4,6 +4,8 @@ using ContactsManager.Core.Enums;
 using ContactsManager.Core.ServiceContracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Rotativa.AspNetCore;
+using Rotativa.AspNetCore.Options;
 
 namespace ContactsManager.UI.Controllers;
 
@@ -196,6 +198,27 @@ public sealed class PersonsController: Controller
         bool isValid = await personsService.DeletePerson(personId);
 
         return RedirectToAction("Index", "Persons");
+    }
+    #endregion
+
+    #region PersonsPDF
+    [Route("[action]")]
+    [HttpGet]
+    public async Task<IActionResult> PersonsPDF()
+    {
+        List<PersonResponse> allPersons = await personsService.GetAllPersons();
+
+        return new ViewAsPdf("PersonsPDF", allPersons, ViewData)
+        {
+            PageMargins = new Margins()
+            {
+                Top = 20,
+                Left = 20,
+                Right = 20,
+                Bottom = 20
+            },
+            PageOrientation = Orientation.Landscape
+        };
     }
     #endregion
 }
