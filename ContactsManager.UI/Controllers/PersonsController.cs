@@ -1,7 +1,9 @@
-﻿using ContactsManager.Core.DataTransferObjects.PersonDtos;
+﻿using ContactsManager.Core.DataTransferObjects.CountryDtos;
+using ContactsManager.Core.DataTransferObjects.PersonDtos;
 using ContactsManager.Core.Enums;
 using ContactsManager.Core.ServiceContracts;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ContactsManager.UI.Controllers;
 
@@ -20,6 +22,22 @@ public sealed class PersonsController: Controller
 
         this.personsService = personsService;
     }
+
+    #region PrivateMethods
+    private async Task LoadCountries()
+    {
+        List<CountryResponse> allCountries = await countriesService.GetAllCountries();
+
+        ViewBag.Countries = allCountries.Select(country =>
+        {
+            return new SelectListItem()
+            {
+                Value = country.CountryId.ToString(),
+                Text = country.CountryName,
+            };
+        });
+    }
+    #endregion
 
     #region Index
 
@@ -40,8 +58,7 @@ public sealed class PersonsController: Controller
             { "Date Of Birth", nameof(PersonResponse.DateOfBirth)},
             { "Age", nameof(PersonResponse.Age)},
             { "country", nameof(PersonResponse.CountryName)},
-            { "Address", nameof(PersonResponse.Address)},
-            { "ReceiveNewsLetters", nameof(PersonResponse.ReceivesNewsLetters)}
+            { "Address", nameof(PersonResponse.Address)},            
         };
 
         ViewBag.SearchByList = searchByList;
@@ -67,5 +84,118 @@ public sealed class PersonsController: Controller
     #endregion
 
     #region Create
+    [Route("[action]")]
+    [HttpGet]
+    public async Task<IActionResult> Create()
+    {
+        await LoadCountries();
+
+        return View("Create");
+    }
+
+    [Route("[action]")]
+    [HttpPost]
+    public async Task<IActionResult> Create(PersonAddRequest? personAddRequest)
+    {
+        if (personAddRequest is null || !ModelState.IsValid)
+        {
+            await LoadCountries();
+
+            return View("Create", personAddRequest);
+        }
+
+        PersonResponse addedPerson = await personsService.AddPerson(personAddRequest);
+
+        return RedirectToAction("Index", "Persons");
+    }
+    #endregion
+
+    #region Update
+    [Route("[action]/{personId:guid}")]
+    [HttpGet]
+    public async Task<IActionResult> Update([FromRoute] Guid personId)
+    {
+        PersonResponse? existingPerson = await personsService.GetPersonByPersonId(personId);
+
+        if (existingPerson is null)
+        {
+            return RedirectToAction("Index", "Persons");
+        }
+
+        await LoadCountries();
+
+        PersonUpdateRequest personUpdateRequest = new PersonUpdateRequest()
+        {
+            PersonId = existingPerson.PersonId,
+            PersonName = existingPerson.PersonName,
+            EmailAddress = existingPerson.EmailAddress,
+            CountryId = existingPerson.CountryId,
+            Address = existingPerson.Address,
+            DateOfBirth = existingPerson.DateOfBirth,
+            Gender = existingPerson.Gender,
+            ReceivesNewsLetters = existingPerson.ReceivesNewsLetters
+        };
+
+        return View("Update", personUpdateRequest);        
+    }
+
+    [Route("[action]/{personId:guid}")]
+    [HttpPost]
+    public async Task<IActionResult> Update(
+        [FromRoute] Guid personId, 
+        [FromForm] PersonUpdateRequest? personUpdateRequest)
+    {
+        if (personUpdateRequest is null || !ModelState.IsValid)
+        {
+            await LoadCountries();
+
+            return View("Update", personUpdateRequest);
+        }
+
+        PersonResponse updatedPerson = await personsService.UpdatePerson(personUpdateRequest);
+
+        return RedirectToAction("Index", "Persons");
+    }
+    #endregion
+
+    #region Delete
+    [Route("[action]/{personId:guid}")]
+    [HttpGet]
+    public async Task<IActionResult> Delete([FromRoute] Guid personId)
+    {
+        PersonResponse? existingPerson = await personsService.GetPersonByPersonId(personId);
+
+        if (existingPerson is null)
+        {
+            return RedirectToAction("Index", "Persons");
+        }
+
+        DeletePersonResponse personResponse = new DeletePersonResponse()
+        {
+            PersonId = existingPerson.PersonId,
+            PersonName = existingPerson.PersonName,
+            EmailAddress = existingPerson.EmailAddress
+        };
+
+        return View("Delete", personResponse);
+    }
+
+    [Route("[action]/{personId:guid}")]
+    [HttpPost]
+    public async Task<IActionResult> Delete(
+        [FromRoute] Guid personId,
+        [FromForm] DeletePersonResponse deletePerson)
+    {
+        PersonResponse? existingPerson = await personsService.GetPersonByPersonId(personId);
+
+        if (existingPerson == null)
+        {
+            return RedirectToAction("Index", "Persons");
+        }
+
+        bool isValid = await personsService.DeletePerson(personId);
+
+        return RedirectToAction("Index", "Persons");
+    }
     #endregion
 }
