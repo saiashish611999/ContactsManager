@@ -63,4 +63,10 @@ public interface IPersonsService
     /// </summary>
     /// <returns></returns>
     Task<MemoryStream> GetPersonsCSV();
+
+    /// <summary>
+    /// method responsible to get persons as advanced CSV
+    /// </summary>
+    /// <returns></returns>
+    Task<MemoryStream> GetPersonsCSVAdvanced();
 }

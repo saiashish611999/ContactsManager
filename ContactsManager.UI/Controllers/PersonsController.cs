@@ -232,4 +232,15 @@ public sealed class PersonsController: Controller
         return File(memoryStream, "application/octet-stream", "persons.csv");
     }
     #endregion
+
+    #region PersonsAdvancedCSV
+    [Route("[action]")]
+    [HttpGet]
+    public async Task<IActionResult> PersonsAdvancedCSV()
+    {
+        MemoryStream memoryStream = await personsService.GetPersonsCSVAdvanced();
+
+        return File(memoryStream, "application/octet-stream", "persons_advanced.csv");
+    }
+    #endregion
 }

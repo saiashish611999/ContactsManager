@@ -6,6 +6,7 @@ using ContactsManager.Core.Helpers;
 using ContactsManager.Core.RepositoryContracts;
 using ContactsManager.Core.ServiceContracts;
 using CsvHelper;
+using CsvHelper.Configuration;
 using System.Globalization;
 using System.Reflection;
 
@@ -142,6 +143,44 @@ public sealed class PersonsService : IPersonsService
         List<PersonResponse> allPersons = await GetAllPersons();
 
         await csvWriter.WriteRecordsAsync(allPersons);
+
+        await csvWriter.FlushAsync();
+
+        memoryStream.Position = 0;
+
+        return memoryStream;
+    }
+
+    public async Task<MemoryStream> GetPersonsCSVAdvanced()
+    {
+        MemoryStream memoryStream = new MemoryStream();
+
+        StreamWriter streamWriter = new StreamWriter(memoryStream);
+
+        CsvConfiguration csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture);
+
+        CsvWriter csvWriter = new CsvWriter(streamWriter, csvConfiguration, leaveOpen: true);
+
+        csvWriter.WriteField("PersonName");
+
+        csvWriter.WriteField("EmailAddress");
+
+        csvWriter.WriteField("Gender");
+
+        List<PersonResponse> allPersons = await GetAllPersons();
+
+        await csvWriter.NextRecordAsync();
+
+        foreach (PersonResponse person in allPersons)
+        {
+            csvWriter.WriteField(person.PersonName);
+
+            csvWriter.WriteField(person.EmailAddress);
+
+            csvWriter.WriteField(person.Gender.ToString());
+
+            await csvWriter.NextRecordAsync();
+        }
 
         await csvWriter.FlushAsync();
 
