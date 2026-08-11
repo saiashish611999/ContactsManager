@@ -5,7 +5,6 @@ using ContactsManager.UI.Controllers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System.Threading.Tasks;
 
 namespace ContactsManager.Tests.UnitTests.ControllerTests;
 public sealed class CountriesControllerTests
