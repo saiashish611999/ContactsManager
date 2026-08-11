@@ -1,5 +1,7 @@
 ﻿using ContactsManager.Tests.WebApplicationFactory;
+using Fizzler.Systems.HtmlAgilityPack;
 using FluentAssertions;
+using HtmlAgilityPack;
 
 namespace ContactsManager.Tests.IntegrationTests;
 public sealed class CountriesControllerIntegrationTest: IClassFixture<CustomWebApplicationFactory>
@@ -18,10 +20,21 @@ public sealed class CountriesControllerIntegrationTest: IClassFixture<CustomWebA
         // arrange
 
         // act
-        HttpResponseMessage responseMessage = await client.GetAsync("/persons/index");
+        HttpResponseMessage responseMessage = await client.GetAsync("/countries/index");
 
         // assert
         responseMessage.IsSuccessStatusCode.Should().BeTrue();
+
+        // fizzler
+        string responseString =  await responseMessage.Content.ReadAsStringAsync();
+
+        HtmlDocument html = new HtmlDocument();
+
+        html.LoadHtml(responseString);
+
+        var document = html.DocumentNode;
+
+        document.QuerySelector("table.countries").Should().NotBeNull();
     }
     #endregion
 }
