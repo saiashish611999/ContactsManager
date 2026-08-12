@@ -5,31 +5,54 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ContactsManager.Tests.WebApplicationFactory;
-public class CustomWebApplicationFactory: WebApplicationFactory<Program>
+
+public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        base.ConfigureWebHost(builder);
-
         builder.UseEnvironment("Test");
 
         builder.ConfigureServices(services =>
         {
-            var descriptor = services.SingleOrDefault(service =>
-            {
-                return service.ServiceType == typeof(DbContextOptions<DatabaseContext>);
-            });
+            // Remove SQL Server registration
+            var descriptor = services.SingleOrDefault(
+                d => d.ServiceType == typeof(DbContextOptions<DatabaseContext>));
 
             if (descriptor != null)
             {
                 services.Remove(descriptor);
             }
 
+            // Register In-Memory database
             services.AddDbContext<DatabaseContext>(options =>
             {
-                options.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                options.UseInMemoryDatabase("ContactsManagerTestDb");
             });
 
+            // Build temporary provider
+            using var serviceProvider = services.BuildServiceProvider();
+            using var scope = serviceProvider.CreateScope();
+
+            var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+
+            // Recreate database
+            db.Database.EnsureDeleted();
+            db.Database.EnsureCreated();           
+
+            // Seed data
+            db.Countries.AddRange(
+                new Core.Domain.Entities.Country
+                {
+                    CountryId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    CountryName = "Israel"
+                },
+                new Core.Domain.Entities.Country
+                {
+                    CountryId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    CountryName = "Iran"
+                });
+
+            db.SaveChanges();
         });
     }
 }

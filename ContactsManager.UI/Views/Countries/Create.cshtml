@@ -4,7 +4,7 @@
     ViewBag.Title = "Create Country";
 }
 
-<div class="row justify-content-center">
+<div class="row justify-content-center create-country">
 
     <div class="col-md-8 col-lg-6">
 
@@ -19,7 +19,7 @@
             <div class="mb-3">
                 <label asp-for="CountryName" class="form-label">Country Name</label>
                 <input asp-for="CountryName" class="form-control" />
-                <span asp-validation-for="CountryName" class="text-danger"></span>
+                <span asp-validation-for="CountryName" class="text-danger country-name-error"></span>
             </div>
 
             <div class="d-flex gap-2">

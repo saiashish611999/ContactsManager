@@ -22,10 +22,18 @@ public sealed class CountriesRepository : ICountriesRepository
 
     public async Task<bool> DeleteCountry(Guid countryId)
     {
-        int rowsAffected = await database.Countries.Where(country => country.CountryId == countryId)
-            .ExecuteDeleteAsync();
+        var country = await database.Countries
+     .FirstOrDefaultAsync(c => c.CountryId == countryId);
 
-        return rowsAffected > 0;
+        if (country != null)
+        {
+            database.Countries.Remove(country);
+            await database.SaveChangesAsync();
+
+            return true;
+        }
+
+        return false;
     }
 
     public async Task<List<Country>> GetAllCountries()
