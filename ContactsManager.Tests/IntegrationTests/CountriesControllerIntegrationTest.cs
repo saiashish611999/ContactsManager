@@ -165,7 +165,7 @@ public sealed class CountriesControllerIntegrationTest: IClassFixture<CustomWebA
     public async Task Delete_GET_ShouldReturnDeleteViewifPersonExists()
     {
         // arrange
-        HttpResponseMessage responseMessage = await client.GetAsync("/Countries/Delete/11111111-1111-1111-1111-111111111111");
+        HttpResponseMessage responseMessage = await client.GetAsync("/Countries/Delete/22222222-2222-2222-2222-222222222222");
 
         responseMessage.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -181,7 +181,7 @@ public sealed class CountriesControllerIntegrationTest: IClassFixture<CustomWebA
 
         countryName.Should().NotBeNull();
 
-        countryName.InnerText.Should().Contain("Israel");
+        countryName.InnerText.Should().Contain("Iran");
     }
 
     [Fact]

@@ -26,7 +26,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             // Register In-Memory database
             services.AddDbContext<DatabaseContext>(options =>
             {
-                options.UseInMemoryDatabase("ContactsManagerTestDb");
+                options.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ContactsManagerTestingDatabase;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
             });
 
             // Build temporary provider

@@ -37,12 +37,14 @@ var app = builder.Build();
 // enabling static files
 app.UseStaticFiles();
 
-// initialize database
-await app.InitializeDatabase();
 
 // rotativa configuration
 if (!app.Environment.IsEnvironment("Test"))
 {
+
+    // initialize database
+    await app.InitializeDatabase();
+
     RotativaConfiguration.Setup(app.Environment.WebRootPath, "exe/rotativa");
 
     ExcelPackage.License.SetNonCommercialPersonal(Guid.NewGuid().ToString());
