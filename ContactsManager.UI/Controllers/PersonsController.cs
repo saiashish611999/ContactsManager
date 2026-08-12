@@ -15,6 +15,7 @@ public sealed class PersonsController: Controller
 {
     private readonly ICountriesService countriesService;
     private readonly IPersonsService personsService;
+    private const string ControllerName = nameof(PersonsController);
 
     public PersonsController(
         ICountriesService countriesService,

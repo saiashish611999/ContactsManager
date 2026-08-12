@@ -11,10 +11,13 @@ namespace ContactsManager.Tests.IntegrationTests;
 public sealed class CountriesControllerIntegrationTest: IClassFixture<CustomWebApplicationFactory>
 {
     private readonly HttpClient client;
+    private readonly CustomWebApplicationFactory factory;
     private readonly ITestOutputHelper writer;
 
     public CountriesControllerIntegrationTest(CustomWebApplicationFactory factory, ITestOutputHelper writer)
     {
+        this.factory = factory;
+
         client = factory.CreateClient(new WebApplicationFactoryClientOptions()
         {
             AllowAutoRedirect = false
@@ -52,6 +55,8 @@ public sealed class CountriesControllerIntegrationTest: IClassFixture<CustomWebA
     [Fact]
     public async Task Create_GET_ShouldReturnView()
     {
+        await factory.ResetDatabase();
+
         HttpResponseMessage responseMessage = await client.GetAsync("/countries/create");
 
         string? content = await responseMessage.Content.ReadAsStringAsync();
@@ -68,6 +73,8 @@ public sealed class CountriesControllerIntegrationTest: IClassFixture<CustomWebA
     [Fact]
     public async Task Create_POST_ShouldReturnSameViewIfModelStateError()
     {
+        await factory.ResetDatabase();
+
         // arrange
         var formData = new Dictionary<string, string?>()
         {
@@ -98,6 +105,8 @@ public sealed class CountriesControllerIntegrationTest: IClassFixture<CustomWebA
     [Fact]
     public async Task Create_POST_ShouldRedirectToIndexAction()
     {
+        await factory.ResetDatabase();
+
         var formData = new Dictionary<string, string?>()
         {
             { "CountryName", "India"}
@@ -138,6 +147,8 @@ public sealed class CountriesControllerIntegrationTest: IClassFixture<CustomWebA
     [Fact]
     public async Task Delete_GET_ShouldReturnRedirectToActionIfCountryIsNull()
     {
+        await factory.ResetDatabase();
+
         HttpResponseMessage responseMessage = await client.GetAsync($"/countries/delete/{Guid.NewGuid()}");
 
         responseMessage.StatusCode.Should().Be(HttpStatusCode.Found);
@@ -164,6 +175,8 @@ public sealed class CountriesControllerIntegrationTest: IClassFixture<CustomWebA
     [Fact]
     public async Task Delete_GET_ShouldReturnDeleteViewifPersonExists()
     {
+        await factory.ResetDatabase();
+
         // arrange
         HttpResponseMessage responseMessage = await client.GetAsync("/Countries/Delete/22222222-2222-2222-2222-222222222222");
 
@@ -187,6 +200,8 @@ public sealed class CountriesControllerIntegrationTest: IClassFixture<CustomWebA
     [Fact]
     public async Task Delete_POST_ShouldRedirectToIndexActionMethod()
     {
+        await factory.ResetDatabase();
+
         HttpResponseMessage responseMessage = await client.PostAsync("/Countries/DeleteConfirmed/11111111-1111-1111-1111-111111111111", null);
 
         responseMessage.StatusCode.Should().Be(HttpStatusCode.Found);

@@ -9,10 +9,14 @@ namespace ContactsManager.UI.Controllers;
 public sealed class CountriesController : Controller
 {
     private readonly ICountriesService countriesService;
+    
+    private const string ControllerName = nameof(CountriesController);
 
     public CountriesController(ICountriesService countriesService)
     {
         this.countriesService = countriesService;
+
+        
     }
 
     #region Index
@@ -33,6 +37,7 @@ public sealed class CountriesController : Controller
     [Route("[action]")]
     public IActionResult Create()
     {
+
         return View("Create");
     }
 
@@ -40,6 +45,7 @@ public sealed class CountriesController : Controller
     [Route("[action]")]
     public async Task<IActionResult> Create(CountryAddRequest countryAddRequest)
     {
+
         if (!ModelState.IsValid)
         {
             return View("Create", countryAddRequest);
