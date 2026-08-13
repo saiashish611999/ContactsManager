@@ -31,7 +31,7 @@ public sealed class PersonConfigurations : IEntityTypeConfiguration<Person>
         builder.HasOne(p => p.Country)
             .WithMany(p => p.Persons)
             .HasForeignKey(p => p.CountryId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasIndex(p => p.PersonName);
 

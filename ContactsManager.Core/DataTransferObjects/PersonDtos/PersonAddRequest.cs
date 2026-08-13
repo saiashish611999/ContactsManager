@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace ContactsManager.Core.DataTransferObjects.PersonDtos;
 public sealed class PersonAddRequest
 {
-    [Required]
+    [Required(ErrorMessage = "PersonName is Required")]
     [StringLength(maximumLength:50, MinimumLength =3)]
     public string? PersonName { get; set; }
 

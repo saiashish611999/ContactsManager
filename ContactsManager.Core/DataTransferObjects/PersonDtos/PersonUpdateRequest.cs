@@ -6,7 +6,7 @@ public sealed class PersonUpdateRequest
 {
     public Guid? PersonId { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "PersonName is required field")]
     [StringLength(maximumLength: 50, MinimumLength = 3)]
     public string? PersonName { get; set; }
 
