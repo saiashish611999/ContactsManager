@@ -6,6 +6,7 @@ using ContactsManager.Core.ServiceContracts;
 using ContactsManager.UI.Controllers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace ContactsManager.Tests.UnitTests.ControllerTests;
@@ -16,6 +17,7 @@ public sealed class PersonsControllerTests
     private readonly IPersonsService personsService;
     private readonly Mock<IPersonsService> personsServiceMock;
     private readonly IFixture fixture;
+    private readonly ILogger<PersonsController> logger;
 
     public PersonsControllerTests()
     {
@@ -28,6 +30,8 @@ public sealed class PersonsControllerTests
         personsService = personsServiceMock.Object;
 
         fixture = new Fixture();
+
+        logger = new Mock<ILogger<PersonsController>>().Object;
     }
 
     #region Index
@@ -45,7 +49,7 @@ public sealed class PersonsControllerTests
         personsServiceMock.Setup(method => method.GetSortedPersons(It.IsAny<List<PersonResponse>>(),It.IsAny<string?> (), It.IsAny<SortOrder>()))
             .Returns(sortedPersons);
 
-        PersonsController controller = new PersonsController(countriesService, personsService);
+        PersonsController controller = new PersonsController(countriesService, personsService, logger);
 
         IActionResult actionResult = await controller.Index(
             fixture.Create<string>(),
@@ -82,7 +86,7 @@ public sealed class PersonsControllerTests
         countriesServiceMock.Setup(method => method.GetAllCountries())
             .ReturnsAsync(countries);
 
-        PersonsController controller = new PersonsController(countriesService, personsService);
+        PersonsController controller = new PersonsController(countriesService, personsService, logger);
 
         IActionResult actionResult = await controller.Create();
 
@@ -105,7 +109,7 @@ public sealed class PersonsControllerTests
         countriesServiceMock.Setup(method => method.GetAllCountries())
             .ReturnsAsync(countries);
 
-        PersonsController controller = new PersonsController(countriesService, personsService);
+        PersonsController controller = new PersonsController(countriesService, personsService, logger);
 
         controller.ModelState.AddModelError("PersonName", "Person Name is not valid");
 
@@ -134,7 +138,7 @@ public sealed class PersonsControllerTests
         personsServiceMock.Setup(method => method.AddPerson(It.IsAny<PersonAddRequest>()))
             .ReturnsAsync(fixture.Create<PersonResponse>());
 
-        PersonsController controller = new PersonsController(countriesService, personsService);
+        PersonsController controller = new PersonsController(countriesService, personsService, logger);
 
         PersonAddRequest personAddRequest = fixture.Create<PersonAddRequest>();
 
@@ -161,7 +165,7 @@ public sealed class PersonsControllerTests
         personsServiceMock.Setup(method => method.GetPersonByPersonId(It.IsAny<Guid>()))
             .ReturnsAsync(null as PersonResponse);
 
-        PersonsController controller = new PersonsController(countriesService, personsService);
+        PersonsController controller = new PersonsController(countriesService, personsService, logger);
 
         IActionResult actionResult = await controller.Update(Guid.NewGuid());
 
@@ -191,7 +195,7 @@ public sealed class PersonsControllerTests
         countriesServiceMock.Setup(method => method.GetAllCountries())
             .ReturnsAsync(countries);
 
-        PersonsController controller = new PersonsController(countriesService, personsService);
+        PersonsController controller = new PersonsController(countriesService, personsService, logger);
 
         IActionResult actionResult = await controller.Update(Guid.NewGuid());
 
@@ -219,7 +223,7 @@ public sealed class PersonsControllerTests
         countriesServiceMock.Setup(method => method.GetAllCountries())
             .ReturnsAsync(allCountries);
 
-        PersonsController controller = new PersonsController(countriesService, personsService);
+        PersonsController controller = new PersonsController(countriesService, personsService, logger);
 
         controller.ModelState.AddModelError("PersonName", "Person Name is invalid");
 
@@ -251,7 +255,7 @@ public sealed class PersonsControllerTests
         personsServiceMock.Setup(method => method.UpdatePerson(It.IsAny<PersonUpdateRequest>()))
             .ReturnsAsync(personResponse);
 
-        PersonsController controller = new PersonsController(countriesService, personsService);
+        PersonsController controller = new PersonsController(countriesService, personsService, logger);
 
         PersonUpdateRequest personUpdateRequest = fixture.Create<PersonUpdateRequest>();
 
@@ -280,7 +284,7 @@ public sealed class PersonsControllerTests
         personsServiceMock.Setup(method => method.GetPersonByPersonId(It.IsAny<Guid>()))
             .ReturnsAsync(null as PersonResponse);
 
-        PersonsController controller = new PersonsController(countriesService, personsService);
+        PersonsController controller = new PersonsController(countriesService, personsService, logger);
 
         IActionResult actionResult = await controller.Delete(Guid.NewGuid());
 
@@ -306,7 +310,7 @@ public sealed class PersonsControllerTests
         personsServiceMock.Setup(method => method.GetPersonByPersonId(It.IsAny<Guid>()))
             .ReturnsAsync(personResponse);
 
-        PersonsController controller = new PersonsController(countriesService, personsService);
+        PersonsController controller = new PersonsController(countriesService, personsService, logger);
 
         IActionResult actionResult = await controller.Delete(Guid.NewGuid());
 
@@ -338,7 +342,7 @@ public sealed class PersonsControllerTests
         personsServiceMock.Setup(method => method.GetPersonByPersonId(It.IsAny<Guid>()))
             .ReturnsAsync(null as PersonResponse);
 
-        PersonsController controller = new PersonsController(countriesService, personsService);
+        PersonsController controller = new PersonsController(countriesService, personsService, logger);
 
         IActionResult actionResult = await controller.Delete(Guid.NewGuid());
 
@@ -366,7 +370,7 @@ public sealed class PersonsControllerTests
         personsServiceMock.Setup(method => method.DeletePerson(It.IsAny<Guid>()))
             .ReturnsAsync(true);
 
-        PersonsController controller = new PersonsController(countriesService, personsService);
+        PersonsController controller = new PersonsController(countriesService, personsService, logger);
 
         IActionResult actionResult = await controller.Delete(Guid.NewGuid(), fixture.Create<DeletePersonResponse>());
 

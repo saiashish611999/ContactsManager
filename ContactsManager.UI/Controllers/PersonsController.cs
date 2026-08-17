@@ -14,16 +14,23 @@ namespace ContactsManager.UI.Controllers;
 public sealed class PersonsController: Controller
 {
     private readonly ICountriesService countriesService;
+
     private readonly IPersonsService personsService;
+
     private const string ControllerName = nameof(PersonsController);
+
+    private readonly ILogger<PersonsController> logger;
 
     public PersonsController(
         ICountriesService countriesService,
-        IPersonsService personsService)
+        IPersonsService personsService,
+        ILogger<PersonsController> logger)
     {
         this.countriesService = countriesService;
 
         this.personsService = personsService;
+
+        this.logger = logger;
     }
 
     #region PrivateMethods
@@ -53,6 +60,8 @@ public sealed class PersonsController: Controller
         [FromQuery] string? sortBy,
         [FromQuery] SortOrder sortOrder)
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(Index), ControllerName);
+
         Dictionary<string, string> searchByList = new Dictionary<string, string>()
         {
             { "Name", nameof(PersonResponse.PersonName)},
@@ -91,6 +100,8 @@ public sealed class PersonsController: Controller
     [HttpGet]
     public async Task<IActionResult> Create()
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(Create), ControllerName);
+
         await LoadCountries();
 
         return View("Create");
@@ -100,6 +111,8 @@ public sealed class PersonsController: Controller
     [HttpPost]
     public async Task<IActionResult> Create(PersonAddRequest? personAddRequest)
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(Create), ControllerName);
+
         if (personAddRequest is null || !ModelState.IsValid)
         {
             await LoadCountries();
@@ -118,6 +131,8 @@ public sealed class PersonsController: Controller
     [HttpGet]
     public async Task<IActionResult> Update([FromRoute] Guid personId)
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(Update), ControllerName);
+
         PersonResponse? existingPerson = await personsService.GetPersonByPersonId(personId);
 
         if (existingPerson is null)
@@ -148,6 +163,8 @@ public sealed class PersonsController: Controller
         [FromRoute] Guid personId, 
         [FromForm] PersonUpdateRequest? personUpdateRequest)
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(Update), ControllerName);
+
         if (personUpdateRequest is null || !ModelState.IsValid)
         {
             await LoadCountries();
@@ -166,6 +183,8 @@ public sealed class PersonsController: Controller
     [HttpGet]
     public async Task<IActionResult> Delete([FromRoute] Guid personId)
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(Delete), ControllerName);
+
         PersonResponse? existingPerson = await personsService.GetPersonByPersonId(personId);
 
         if (existingPerson is null)
@@ -189,6 +208,8 @@ public sealed class PersonsController: Controller
         [FromRoute] Guid personId,
         [FromForm] DeletePersonResponse deletePerson)
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(Delete), ControllerName);
+
         PersonResponse? existingPerson = await personsService.GetPersonByPersonId(personId);
 
         if (existingPerson == null)
@@ -207,6 +228,8 @@ public sealed class PersonsController: Controller
     [HttpGet]
     public async Task<IActionResult> PersonsPDF()
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(PersonsPDF), ControllerName);
+
         List<PersonResponse> allPersons = await personsService.GetAllPersons();
 
         return new ViewAsPdf("PersonsPDF", allPersons, ViewData)
@@ -228,6 +251,8 @@ public sealed class PersonsController: Controller
     [HttpGet]
     public async Task<IActionResult> PersonsCSV()
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(PersonsCSV), ControllerName);
+
         MemoryStream memoryStream = await personsService.GetPersonsCSV();
 
         return File(memoryStream, "application/octet-stream", "persons.csv");
@@ -239,6 +264,8 @@ public sealed class PersonsController: Controller
     [HttpGet]
     public async Task<IActionResult> PersonsAdvancedCSV()
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(PersonsAdvancedCSV), ControllerName);
+
         MemoryStream memoryStream = await personsService.GetPersonsCSVAdvanced();
 
         return File(memoryStream, "application/octet-stream", "persons_advanced.csv");
@@ -248,6 +275,8 @@ public sealed class PersonsController: Controller
     #region PersonsExcel
     public async Task<IActionResult> GetPersonsExcel()
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(GetPersonsExcel), ControllerName);
+
         MemoryStream memoryStream = await personsService.GetPersonsExcel();
 
         return File(memoryStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "persons.xlsx");

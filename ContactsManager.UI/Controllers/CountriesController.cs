@@ -12,11 +12,13 @@ public sealed class CountriesController : Controller
     
     private const string ControllerName = nameof(CountriesController);
 
-    public CountriesController(ICountriesService countriesService)
+    private ILogger<CountriesController> logger;
+
+    public CountriesController(ICountriesService countriesService, ILogger<CountriesController> logger)
     {
         this.countriesService = countriesService;
 
-        
+        this.logger = logger;
     }
 
     #region Index
@@ -25,6 +27,8 @@ public sealed class CountriesController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(Index), ControllerName);
+
         List<CountryResponse> allCountries = await countriesService.GetAllCountries();
 
         return View("Index", allCountries);
@@ -37,6 +41,7 @@ public sealed class CountriesController : Controller
     [Route("[action]")]
     public IActionResult Create()
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(Create), ControllerName);
 
         return View("Create");
     }
@@ -45,6 +50,7 @@ public sealed class CountriesController : Controller
     [Route("[action]")]
     public async Task<IActionResult> Create(CountryAddRequest countryAddRequest)
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(Create), ControllerName);
 
         if (!ModelState.IsValid)
         {
@@ -62,6 +68,8 @@ public sealed class CountriesController : Controller
     [HttpGet]
     public async Task<IActionResult> Delete([FromRoute] Guid countryId)
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(Delete), ControllerName);
+
         CountryResponse? existingCountry = await countriesService.GetCountryByCountryId(countryId);
 
         if (existingCountry is null)
@@ -76,6 +84,8 @@ public sealed class CountriesController : Controller
     [HttpPost]
     public async Task<IActionResult> DeleteConfirmed([FromRoute] Guid countryId)
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(Delete), ControllerName);
+
         bool isDeleted = await countriesService.DeleteCountry(countryId);
 
         return RedirectToAction("Index", "Countries");
@@ -88,6 +98,8 @@ public sealed class CountriesController : Controller
     [HttpGet]
     public IActionResult UploadCountries()
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(UploadCountries), ControllerName);
+
         return View("Upload");
     }
 
@@ -95,6 +107,8 @@ public sealed class CountriesController : Controller
     [HttpPost]
     public async Task<IActionResult> UploadCountries([FromForm] IFormFile formFile)
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(formFile), ControllerName);
+
         if (!Path.GetExtension(formFile.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
         {
             ViewBag.ErrorMessage = "please upload either .xlsx or .xls file";

@@ -4,6 +4,7 @@ using ContactsManager.Core.ServiceContracts;
 using ContactsManager.UI.Controllers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace ContactsManager.Tests.UnitTests.ControllerTests;
@@ -12,12 +13,15 @@ public sealed class CountriesControllerTests
     private readonly ICountriesService countriesService;
     private readonly Mock<ICountriesService> countriesServiceMock;
     private readonly IFixture fixture;
+    private readonly ILogger<CountriesController> logger;
 
     public CountriesControllerTests()
     {
         countriesServiceMock = new Mock<ICountriesService>();
 
         countriesService = countriesServiceMock.Object;
+
+        logger = new Mock<ILogger<CountriesController>>().Object;
 
         fixture = new Fixture();
     }
@@ -30,7 +34,7 @@ public sealed class CountriesControllerTests
         countriesServiceMock.Setup(method => method.GetAllCountries())
             .ReturnsAsync(allCountries);
 
-        CountriesController controller = new CountriesController(countriesService);
+        CountriesController controller = new CountriesController(countriesService, logger);
 
         IActionResult actionResult = await controller.Index();
 
@@ -48,7 +52,7 @@ public sealed class CountriesControllerTests
     [Fact]
     public void Create_GET_ShouldReturnCreateView()
     {
-        CountriesController controller = new CountriesController(countriesService);
+        CountriesController controller = new CountriesController(countriesService, logger);
 
         IActionResult actionResult =  controller.Create();
 
@@ -62,7 +66,7 @@ public sealed class CountriesControllerTests
     [Fact]
     public async Task Create_POST_ShouldReturnCreateViewIfModelStateErrors()
     {
-        CountriesController controller = new CountriesController(countriesService);
+        CountriesController controller = new CountriesController(countriesService, logger);
 
         controller.ModelState.AddModelError("CountryName", "CountryName is not valid");
 
@@ -89,7 +93,7 @@ public sealed class CountriesControllerTests
         countriesServiceMock.Setup(method => method.AddCountry(It.IsAny<CountryAddRequest>()))
             .ReturnsAsync(countryResponse);
 
-        CountriesController controller = new CountriesController(countriesService);
+        CountriesController controller = new CountriesController(countriesService, logger);
 
         CountryAddRequest countryAddRequest = fixture.Create<CountryAddRequest>();
 
@@ -113,7 +117,7 @@ public sealed class CountriesControllerTests
         countriesServiceMock.Setup(method => method.GetCountryByCountryId(It.IsAny<Guid>()))
             .ReturnsAsync(null as CountryResponse);
 
-        CountriesController controller = new CountriesController(countriesService);
+        CountriesController controller = new CountriesController(countriesService, logger);
 
         IActionResult actionResult = await controller.Delete(Guid.NewGuid());
 
@@ -137,7 +141,7 @@ public sealed class CountriesControllerTests
         countriesServiceMock.Setup(method => method.GetCountryByCountryId(It.IsAny<Guid>()))
             .ReturnsAsync(countryResponse);
 
-        CountriesController controller = new CountriesController(countriesService);
+        CountriesController controller = new CountriesController(countriesService, logger);
 
         IActionResult actionResult = await controller.Delete(Guid.NewGuid());
 
@@ -160,7 +164,7 @@ public sealed class CountriesControllerTests
         countriesServiceMock.Setup(method => method.DeleteCountry(It.IsAny<Guid>()))
             .ReturnsAsync(true);
 
-        CountriesController controller = new CountriesController(countriesService);
+        CountriesController controller = new CountriesController(countriesService, logger);
 
         IActionResult actionResult = await controller.DeleteConfirmed(Guid.NewGuid());
 
@@ -181,7 +185,7 @@ public sealed class CountriesControllerTests
         countriesServiceMock.Setup(method => method.DeleteCountry(It.IsAny<Guid>()))
             .ReturnsAsync(false);
 
-        CountriesController controller = new CountriesController(countriesService);
+        CountriesController controller = new CountriesController(countriesService, logger);
 
         IActionResult actionResult = await controller.DeleteConfirmed(Guid.NewGuid());
 

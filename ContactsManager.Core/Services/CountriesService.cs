@@ -5,19 +5,30 @@ using ContactsManager.Core.Helpers;
 using ContactsManager.Core.RepositoryContracts;
 using ContactsManager.Core.ServiceContracts;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using OfficeOpenXml;
 
 namespace ContactsManager.Core.Services;
 public sealed class CountriesService : ICountriesService
 {
     private readonly ICountriesRepository countriesRepository;
-    public CountriesService(ICountriesRepository countriesRepository)
+
+    private readonly ILogger<CountriesService> logger;
+
+    private const string ServiceName = nameof(CountriesService);
+    public CountriesService(
+        ICountriesRepository countriesRepository,
+        ILogger<CountriesService> logger)
     {
         this.countriesRepository = countriesRepository;
+
+        this.logger = logger;
     }
 
     public async Task<CountryResponse> AddCountry(CountryAddRequest? countryAddRequest)
     {
+        logger.LogInformation("Reached {MethodName} of {ServiceName}", nameof(AddCountry), ServiceName);
+
         ArgumentNullException.ThrowIfNull(countryAddRequest);
 
         ValidateRequest.ValidateRequestObject(countryAddRequest);
@@ -43,6 +54,8 @@ public sealed class CountriesService : ICountriesService
 
     public async Task<bool> DeleteCountry(Guid countryId)
     {
+        logger.LogInformation("Reached {MethodName} of {ServiceName}", nameof(DeleteCountry), ServiceName);
+
         bool isDeleted = await countriesRepository.DeleteCountry(countryId);
 
         return isDeleted;
@@ -50,6 +63,8 @@ public sealed class CountriesService : ICountriesService
 
     public async Task<List<CountryResponse>> GetAllCountries()
     {
+        logger.LogInformation("Reached {MethodName} of {ServiceName}", nameof(GetAllCountries), ServiceName);
+
         List<Country> countries = await countriesRepository.GetAllCountries();
 
         List<CountryResponse> response = countries.Select(c => c.AsCountryResponse()).ToList();
@@ -59,6 +74,8 @@ public sealed class CountriesService : ICountriesService
 
     public async Task<CountryResponse?> GetCountryByCountryId(Guid? countryId)
     {
+        logger.LogInformation("Reached {MethodName} of {ServiceName}", nameof(GetCountryByCountryId), ServiceName);
+
         ArgumentNullException.ThrowIfNull(countryId);
 
         Country? country = await countriesRepository.GetCountryByCountryId(countryId);
@@ -75,6 +92,8 @@ public sealed class CountriesService : ICountriesService
 
     public async Task<int> UploadCountriesFromExcel(IFormFile formFile)
     {
+        logger.LogInformation("Reached {MethodName} of {ServiceName}", nameof(UploadCountriesFromExcel), ServiceName);
+
         MemoryStream memoryStream = new MemoryStream();
 
         int noOfRowsInserted = 0;

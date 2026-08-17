@@ -4,7 +4,9 @@ using ContactsManager.Core.Domain.Entities;
 using ContactsManager.Core.RepositoryContracts;
 using ContactsManager.Core.ServiceContracts;
 using ContactsManager.Core.Services;
+using ContactsManager.Infrastructure.Repositories;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System.Threading.Tasks;
 
@@ -24,7 +26,9 @@ public class CountriesServiceTests
 
         countriesRepository = countriesRepositoryMock.Object;
 
-        this.countriesService = new CountriesService(countriesRepository); 
+        var logger = new Mock<ILogger<CountriesService>>();
+
+        this.countriesService = new CountriesService(countriesRepository, logger.Object); 
     }
 
     #region AddCountry

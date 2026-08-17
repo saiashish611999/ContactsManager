@@ -1,18 +1,29 @@
 ﻿using ContactsManager.Core.Domain.Entities;
 using ContactsManager.Core.RepositoryContracts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace ContactsManager.Infrastructure.Repositories;
 public sealed class CountriesRepository : ICountriesRepository
 {
     private readonly DatabaseContext database;
-    public CountriesRepository(DatabaseContext database)
+
+    private const string RepositoryName = nameof(CountriesRepository);
+
+    private readonly ILogger<CountriesRepository> logger;
+    public CountriesRepository(
+        DatabaseContext database,
+        ILogger<CountriesRepository> logger)
     {
         this.database = database;
+
+        this.logger = logger;
     }
 
     public async Task<Country> AddCountry(Country country)
     {
+        logger.LogInformation("Reached {MethodName} of {RepositoryName}", nameof(AddCountry), RepositoryName);
+
         await database.Countries.AddAsync(country);
 
         await database.SaveChangesAsync();
@@ -22,8 +33,10 @@ public sealed class CountriesRepository : ICountriesRepository
 
     public async Task<bool> DeleteCountry(Guid countryId)
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(DeleteCountry), RepositoryName);
+
         var country = await database.Countries
-     .FirstOrDefaultAsync(c => c.CountryId == countryId);
+        .FirstOrDefaultAsync(c => c.CountryId == countryId);
 
         if (country != null)
         {
@@ -38,6 +51,8 @@ public sealed class CountriesRepository : ICountriesRepository
 
     public async Task<List<Country>> GetAllCountries()
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(GetAllCountries), RepositoryName);
+            
         List<Country> countries = await database
             .Countries
             .AsNoTracking()
@@ -48,6 +63,8 @@ public sealed class CountriesRepository : ICountriesRepository
 
     public async Task<Country?> GetCountryByCountryId(Guid? countryId)
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(GetCountryByCountryId), RepositoryName);
+
         Country? country = await database
             .Countries
             .AsNoTracking()
@@ -63,6 +80,8 @@ public sealed class CountriesRepository : ICountriesRepository
 
     public async Task<bool> IsCountryExists(string? countryName)
     {
+        logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(IsCountryExists), RepositoryName);
+
         if (countryName is null)
         {
             throw new ArgumentNullException(nameof(countryName));

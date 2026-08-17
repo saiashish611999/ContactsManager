@@ -43,7 +43,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
         // Recreate database
         await db.Database.EnsureDeletedAsync();
-        await db.Database.EnsureCreatedAsync();
+        await db.Database.MigrateAsync();
 
         // Seed data
         await db.Countries.AddRangeAsync(

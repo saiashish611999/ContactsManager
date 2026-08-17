@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using Castle.Core.Logging;
 using ContactsManager.Core.DataTransferObjects.PersonDtos;
 using ContactsManager.Core.Domain.Entities;
 using ContactsManager.Core.Enums;
@@ -7,7 +8,9 @@ using ContactsManager.Core.RepositoryContracts;
 using ContactsManager.Core.ServiceContracts;
 using ContactsManager.Core.Services;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
+using Serilog;
 using System.Threading.Tasks;
 
 namespace ContactsManager.Tests.UnitTests.ServiceTests;
@@ -26,7 +29,11 @@ public sealed class PersonsServiceTests
 
         personsRepository = personsRepositoryMock.Object;
 
-        personsService = new PersonsService(personsRepository);
+        var logger = new Mock<ILogger<PersonsService>>();
+
+        var diagnosticContext = new Mock<IDiagnosticContext>();
+
+        personsService = new PersonsService(personsRepository, logger.Object, diagnosticContext.Object);
     }
 
     #region AddPerson

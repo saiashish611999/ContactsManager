@@ -7,7 +7,9 @@ using ContactsManager.Core.RepositoryContracts;
 using ContactsManager.Core.ServiceContracts;
 using CsvHelper;
 using CsvHelper.Configuration;
+using Microsoft.Extensions.Logging;
 using OfficeOpenXml;
+using Serilog;
 using System.Drawing;
 using System.Globalization;
 using System.Reflection;
@@ -16,15 +18,29 @@ namespace ContactsManager.Core.Services;
 public sealed class PersonsService : IPersonsService
 {
     private readonly IPersonsRepository personsRepository;
+
+    private readonly ILogger<PersonsService> logger;
+
+    private const string ServiceName = nameof(PersonsService);
+
+    private readonly IDiagnosticContext diagnosticContext;
     public PersonsService(
-        IPersonsRepository personsRepository
+        IPersonsRepository personsRepository,
+        ILogger<PersonsService> logger,
+        IDiagnosticContext diagnosticContext
         )
     {
         this.personsRepository = personsRepository;
+
+        this.logger = logger;
+
+        this.diagnosticContext = diagnosticContext;
     }
 
     public async Task<PersonResponse> AddPerson(PersonAddRequest? personAddRequest)
     {
+        logger.LogInformation("Reached {MethodName} of {ServiceName}", nameof(AddPerson), ServiceName);
+
         ArgumentNullException.ThrowIfNull(personAddRequest);
 
         ValidateRequest.ValidateRequestObject(personAddRequest);
@@ -48,6 +64,8 @@ public sealed class PersonsService : IPersonsService
 
     public async Task<bool> DeletePerson(Guid? personId)
     {
+        logger.LogInformation("Reached {MethodName} of {ServiceName}", nameof(DeletePerson), ServiceName);
+
         ArgumentNullException.ThrowIfNull(personId);
 
         Person? person = await personsRepository.GetPersonByPersonIdWithTracking(personId);
@@ -66,6 +84,8 @@ public sealed class PersonsService : IPersonsService
 
     public async Task<List<PersonResponse>> GetAllPersons()
     {
+        logger.LogInformation("Reached {MethodName} of {ServiceName}", nameof(GetAllPersons), ServiceName);
+
         List<Person> persons = await personsRepository.GetAllPersons();
 
         if (persons.Count == 0)
@@ -80,7 +100,12 @@ public sealed class PersonsService : IPersonsService
 
     public async Task<List<PersonResponse>> GetFilteredPersons(string? searchBy, string? searchString)
     {
+        logger.LogInformation("Reached {MethodName} of {ServiceName}", nameof(GetFilteredPersons), ServiceName);
+
         List<PersonResponse> allPersons = await GetAllPersons();
+
+
+        diagnosticContext.Set("Persons", allPersons);
 
         if (string.IsNullOrEmpty(searchBy) || string.IsNullOrEmpty(searchString))
         {
@@ -116,6 +141,8 @@ public sealed class PersonsService : IPersonsService
 
     public async Task<PersonResponse?> GetPersonByPersonId(Guid? personId)
     {
+        logger.LogInformation("Reached {MethodName} of {ServiceName}", nameof(GetPersonByPersonId), ServiceName);
+
         ArgumentNullException.ThrowIfNull(personId);
 
         Person? person = await personsRepository.GetPersonByPersonId(personId);
@@ -132,6 +159,8 @@ public sealed class PersonsService : IPersonsService
 
     public async Task<MemoryStream> GetPersonsCSV()
     {
+        logger.LogInformation("Reached {MethodName} of {ServiceName}", nameof(GetPersonsCSV), ServiceName);
+
         MemoryStream memoryStream = new MemoryStream();
 
         StreamWriter streamWriter = new StreamWriter(memoryStream);
@@ -155,6 +184,8 @@ public sealed class PersonsService : IPersonsService
 
     public async Task<MemoryStream> GetPersonsCSVAdvanced()
     {
+        logger.LogInformation("Reached {MethodName} of {ServiceName}", nameof(GetPersonsCSVAdvanced), ServiceName);
+
         MemoryStream memoryStream = new MemoryStream();
 
         StreamWriter streamWriter = new StreamWriter(memoryStream);
@@ -193,6 +224,8 @@ public sealed class PersonsService : IPersonsService
 
     public async Task<MemoryStream> GetPersonsExcel()
     {
+        logger.LogInformation("Reached {MethodName} of {ServiceName}", nameof(GetPersonsExcel), ServiceName);
+
         MemoryStream memoryStream = new MemoryStream();
 
         using (ExcelPackage excelPackage = new ExcelPackage(memoryStream))
@@ -245,6 +278,8 @@ public sealed class PersonsService : IPersonsService
         string? sortBy, 
         SortOrder sortOrder)
     {
+        logger.LogInformation("Reached {MethodName} of {ServiceName}", nameof(GetSortedPersons), ServiceName);
+
         if (string.IsNullOrEmpty(sortBy))
         {
             return allPersons;
@@ -266,6 +301,8 @@ public sealed class PersonsService : IPersonsService
 
     public async Task<PersonResponse> UpdatePerson(PersonUpdateRequest? personUpdateRequest)
     {
+        logger.LogInformation("Reached {MethodName} of {ServiceName}", nameof(UpdatePerson), ServiceName);
+
         ArgumentNullException.ThrowIfNull(personUpdateRequest);
 
         ValidateRequest.ValidateRequestObject(personUpdateRequest);
