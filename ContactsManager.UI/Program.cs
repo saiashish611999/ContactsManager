@@ -4,6 +4,7 @@ using ContactsManager.Core.Services;
 using ContactsManager.Infrastructure;
 using ContactsManager.Infrastructure.Repositories;
 using ContactsManager.UI.Extensions;
+using ContactsManager.UI.Filters.ActionFilters;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using Rotativa.AspNetCore;
@@ -14,12 +15,12 @@ var builder = WebApplication.CreateBuilder(args);
 // configuring logging
 builder.Logging.ClearProviders();
 
-builder.Logging.AddConsole();
+//builder.Logging.AddConsole();
 
-if (OperatingSystem.IsWindows())
-{
-    builder.Logging.AddEventLog();
-}
+//if (OperatingSystem.IsWindows())
+//{
+//    builder.Logging.AddEventLog();
+//}
 
 builder.Services.AddHttpLogging(options =>
 {
@@ -33,11 +34,16 @@ builder.Services.AddHttpLogging(options =>
 builder.Host.UseSerilog((context, services, logging) =>
 {
     logging.ReadFrom.Configuration(context.Configuration)
-           .ReadFrom.Services(services)
-           .WriteTo.Console();
+           .ReadFrom.Services(services);
+           // .WriteTo.Console();
 });
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    // options.Filters.Add<ResponseHeaderActionFilter>();
+    ILogger<ResponseHeaderActionFilter>? logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<ResponseHeaderActionFilter>>();
+    options.Filters.Add(new ResponseHeaderActionFilter(logger, "X-CUSTOM-KEY-FROM-GLOBAL", "GLOBAL", 2));
+});
 
 var connectionString = builder.Configuration.GetConnectionString("database");
 

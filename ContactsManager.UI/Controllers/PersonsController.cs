@@ -2,6 +2,7 @@
 using ContactsManager.Core.DataTransferObjects.PersonDtos;
 using ContactsManager.Core.Enums;
 using ContactsManager.Core.ServiceContracts;
+using ContactsManager.UI.Filters.ActionFilters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Rotativa.AspNetCore;
@@ -11,14 +12,12 @@ namespace ContactsManager.UI.Controllers;
 
 [Controller]
 [Route("[controller]")]
+[TypeFilter(typeof(ResponseHeaderActionFilter), Arguments = new object[] { "X-CUSTOM-HEADER", "ContactsManager", 3})]
 public sealed class PersonsController: Controller
 {
     private readonly ICountriesService countriesService;
-
     private readonly IPersonsService personsService;
-
     private const string ControllerName = nameof(PersonsController);
-
     private readonly ILogger<PersonsController> logger;
 
     public PersonsController(
@@ -54,6 +53,8 @@ public sealed class PersonsController: Controller
     [Route("/")]
     [Route("[action]")]
     [HttpGet]
+    [TypeFilter(typeof(PersonsListActionFilter))]
+    [TypeFilter(typeof(ResponseHeaderActionFilter), Arguments = new object[] { "X-Custom-Key-Method", "random value", 1})]
     public async Task<IActionResult> Index(
         [FromQuery] string? searchBy,
         [FromQuery] string? searchString,
@@ -62,33 +63,33 @@ public sealed class PersonsController: Controller
     {
         logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(Index), ControllerName);
 
-        Dictionary<string, string> searchByList = new Dictionary<string, string>()
-        {
-            { "Name", nameof(PersonResponse.PersonName)},
-            { "Email", nameof(PersonResponse.EmailAddress)},
-            { "Gender", nameof(PersonResponse.Gender)},
-            { "Date Of Birth", nameof(PersonResponse.DateOfBirth)},
-            { "Age", nameof(PersonResponse.Age)},
-            { "country", nameof(PersonResponse.CountryName)},
-            { "Address", nameof(PersonResponse.Address)},            
-        };
+        //Dictionary<string, string> searchByList = new Dictionary<string, string>()
+        //{
+        //    { "Name", nameof(PersonResponse.PersonName)},
+        //    { "Email", nameof(PersonResponse.EmailAddress)},
+        //    { "Gender", nameof(PersonResponse.Gender)},
+        //    { "Date Of Birth", nameof(PersonResponse.DateOfBirth)},
+        //    { "Age", nameof(PersonResponse.Age)},
+        //    { "country", nameof(PersonResponse.CountryName)},
+        //    { "Address", nameof(PersonResponse.Address)},            
+        //};
 
-        ViewBag.SearchByList = searchByList;
+        //ViewBag.SearchByList = searchByList;
 
         List<PersonResponse> filteredPersons = await personsService.GetFilteredPersons(searchBy, searchString);
 
-        ViewBag.CurrentSearchBy = searchBy;
+       // ViewBag.CurrentSearchBy = searchBy;
 
-        ViewBag.CurrentSearchString = searchString;
+       // ViewBag.CurrentSearchString = searchString;
 
         List<PersonResponse> sortedPersons = personsService.GetSortedPersons(
             filteredPersons,
             sortBy,
             sortOrder);
 
-        ViewBag.CurrentSortBy = sortBy;
+        // ViewBag.CurrentSortBy = sortBy;
 
-        ViewBag.CurrentSortOrder = sortOrder;
+        // ViewBag.CurrentSortOrder = sortOrder;
 
 
         return View("Index", sortedPersons);
@@ -109,18 +110,19 @@ public sealed class PersonsController: Controller
 
     [Route("[action]")]
     [HttpPost]
-    public async Task<IActionResult> Create(PersonAddRequest? personAddRequest)
+    [TypeFilter(typeof(PersonsCreateAndUpdatePostActionFilter), Arguments = new object[] { 1})]
+    public async Task<IActionResult> Create(PersonAddRequest? personRequest)
     {
         logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(Create), ControllerName);
 
-        if (personAddRequest is null || !ModelState.IsValid)
-        {
-            await LoadCountries();
+        //if (personRequest is null || !ModelState.IsValid)
+        //{
+        //    await LoadCountries();
 
-            return View("Create", personAddRequest);
-        }
+        //    return View("Create", personRequest);
+        //}
 
-        PersonResponse addedPerson = await personsService.AddPerson(personAddRequest);
+        PersonResponse addedPerson = await personsService.AddPerson(personRequest);
 
         return RedirectToAction("Index", "Persons");
     }
@@ -159,20 +161,21 @@ public sealed class PersonsController: Controller
 
     [Route("[action]/{personId:guid}")]
     [HttpPost]
+    [TypeFilter(typeof(PersonsCreateAndUpdatePostActionFilter), Arguments = new object[] { 1})]
     public async Task<IActionResult> Update(
         [FromRoute] Guid personId, 
-        [FromForm] PersonUpdateRequest? personUpdateRequest)
+        [FromForm] PersonUpdateRequest? personRequest)
     {
         logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(Update), ControllerName);
 
-        if (personUpdateRequest is null || !ModelState.IsValid)
-        {
-            await LoadCountries();
+        //if (personRequest is null || !ModelState.IsValid)
+        //{
+        //    await LoadCountries();
 
-            return View("Update", personUpdateRequest);
-        }
+        //    return View("Update", personRequest);
+        //}
 
-        PersonResponse updatedPerson = await personsService.UpdatePerson(personUpdateRequest);
+        PersonResponse updatedPerson = await personsService.UpdatePerson(personRequest);
 
         return RedirectToAction("Index", "Persons");
     }

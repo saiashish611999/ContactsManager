@@ -1,5 +1,6 @@
 ﻿using ContactsManager.Core.DataTransferObjects.CountryDtos;
 using ContactsManager.Core.ServiceContracts;
+using ContactsManager.UI.Filters.ActionFilters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContactsManager.UI.Controllers;
@@ -25,6 +26,7 @@ public sealed class CountriesController : Controller
 
     [Route("[action]")]
     [HttpGet]
+    [TypeFilter(typeof(CountriesListActionFilter))]
     public async Task<IActionResult> Index()
     {
         logger.LogInformation("Reached {MethodName} of {ControllerName}", nameof(Index), ControllerName);
